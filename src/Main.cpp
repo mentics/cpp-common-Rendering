@@ -21,6 +21,7 @@
 
 static void error_callback(int error, const char* description) {
 	std::cerr << description << std::endl;
+	system("pause");
 }
 
 void resize_callback(GLFWwindow *window, int w, int h) {
@@ -135,7 +136,6 @@ int main() {
 
 	glDeleteVertexArrays(1, &vao);
 	glDeleteBuffers(1, &vbo);
-
 	glfwTerminate();
 	return 0;
 
