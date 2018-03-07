@@ -152,9 +152,6 @@
     <ProjectReference Include="..\..\common\Common.vcxproj">
       <Project>{a1cea56a-2f14-4457-b2b1-bfb7c2c02c56}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\Rendering.vcxproj">
-      <Project>{f6a245b8-e859-4eee-a1bb-b62ada30afde}</Project>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SomethingTest.cpp" />

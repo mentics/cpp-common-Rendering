@@ -1,3 +1,4 @@
+
 #include "stdafx.h"
 
 // ImGui - standalone example application for GLFW + OpenGL 3, using programmable pipeline
@@ -10,6 +11,10 @@
 #include <stdio.h>
 #include <GL/glew.h>    // This example is using gl3w to access OpenGL functions (because it is small). You may use glew/glad/glLoadGen/etc. whatever already works for you.
 #include <GLFW/glfw3.h>
+#include <string>
+#include "World.h"
+#include "WorldModel.h"
+
 
 static void error_callback(int error, const char* description)
 {
@@ -23,8 +28,8 @@ int main(int, char**)
     if (!glfwInit())
         return 1;
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #if __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
@@ -64,12 +69,21 @@ int main(int, char**)
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // Main loop
+
+	MenticsGame::World w(1);
+	TimePoint gameTime = 0;
+	TimePoint lastLoopTime;
+	TimePoint newLoopTime;
+	int clr = 0;
+	
+
+	lastLoopTime = currentTimeNanos();
     while (!glfwWindowShouldClose(window))
     {
-        // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
-        // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
-        // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
-        // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
+		newLoopTime = currentTimeNanos();
+		gameTime += newLoopTime - lastLoopTime;
+		lastLoopTime = newLoopTime;
+        
         glfwPollEvents();
         ImGui_ImplGlfwGL3_NewFrame();
 
@@ -78,10 +92,11 @@ int main(int, char**)
         {
             static float f = 0.0f;
             static int counter = 0;
-            ImGui::Text("Hello, world!");                           // Display some text (you can use a format string too)
+			//ImGui::Text("Game Time : %d | processing Time : %d", gameTime,  getpSched(&w)->getPT());         // Display some text (you can use a format string too)
             ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f    
             ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
+			
             ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our windows open/close state
             ImGui::Checkbox("Another Window", &show_another_window);
 
@@ -116,6 +131,26 @@ int main(int, char**)
         glViewport(0, 0, display_w, display_h);
         glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
+
+		//getp(&w)->agents.forEach([=](Agent<>* a) { 
+		//
+		//	glBegin(GL_TRIANGLES);
+		//	glColor3f(clr, clr, 0);
+		//	glVertex2d(-1, -1); 
+		//	glVertex2d(1, -1);  
+		//	glVertex2d(0, 1);  
+		//	glEnd();
+		//
+		//}, gameTime);
+
+		glBegin(GL_TRIANGLES);
+		glColor3f(clr, clr, 0);
+		glVertex2d(-1, -1);
+		glVertex2d(1, -1);
+		glVertex2d(0, 1);
+		glEnd();
+		
+
         ImGui::Render();
         ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
