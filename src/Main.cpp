@@ -6,6 +6,7 @@
 // (GLFW is a cross-platform general purpose library for handling windows, inputs, OpenGL/Vulkan graphics context creation, etc.)
 // (GL3W is a helper library to access OpenGL functions since there is no standard header to access modern OpenGL functions easily. Alternatives are GLEW, Glad, etc.)
 
+#include "MenticsCommon.h"
 #include "imgui.h"
 #include "imgui_impl_glfw_gl3.h"
 #include <stdio.h>
@@ -14,6 +15,7 @@
 #include <string>
 #include "World.h"
 #include "WorldModel.h"
+
 
 
 static void error_callback(int error, const char* description)
@@ -69,18 +71,19 @@ int main(int, char**)
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // Main loop
-
-	MenticsGame::World w(1);
+	
+	MenticsGame::World w(0);
+	
 	TimePoint gameTime = 0;
 	TimePoint lastLoopTime;
 	TimePoint newLoopTime;
 	int clr = 0;
 	
 
-	lastLoopTime = currentTimeNanos();
+	lastLoopTime = MenticsGame::currentTimeNanos();
     while (!glfwWindowShouldClose(window))
     {
-		newLoopTime = currentTimeNanos();
+		newLoopTime = MenticsGame::currentTimeNanos();
 		gameTime += newLoopTime - lastLoopTime;
 		lastLoopTime = newLoopTime;
         
