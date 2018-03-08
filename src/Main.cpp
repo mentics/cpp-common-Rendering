@@ -73,7 +73,8 @@ int main(int, char**)
     // Main loop
 	
 	MenticsGame::World w(0);
-	
+	w.createQuip((uint64_t)0);
+
 	TimePoint gameTime = 0;
 	TimePoint lastLoopTime;
 	TimePoint newLoopTime;
