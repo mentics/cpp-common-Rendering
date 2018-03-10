@@ -29,6 +29,8 @@ static void error_callback(int error, const char* description)
     fprintf(stderr, "Error %d: %s\n", error, description);
 }
 
+void draw_cube(MenticsGame::vect3);
+
 int main(int, char**)
 {
     // Setup window
@@ -80,13 +82,19 @@ int main(int, char**)
 	TimePoint gameTime = 0;
 	TimePoint lastLoopTime;
 	TimePoint newLoopTime;
-
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
+	glClearDepth(1.0f);                   // Set background depth to farthest
+	glEnable(GL_DEPTH_TEST);   // Enable depth testing for z-culling
+	glDepthFunc(GL_LEQUAL);    // Set the type of depth-test
+	glShadeModel(GL_SMOOTH);   // Enable smooth shading
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);  // Nice perspective corrections
 	
 	
 
 	lastLoopTime = MenticsGame::currentTimeNanos();
     while (!glfwWindowShouldClose(window))
     {
+		
 		newLoopTime = MenticsGame::currentTimeNanos();
 		gameTime += newLoopTime - lastLoopTime;
 		lastLoopTime = newLoopTime;
@@ -137,65 +145,21 @@ int main(int, char**)
         glfwGetFramebufferSize(window, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
         glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-        glClear(GL_COLOR_BUFFER_BIT);
+   
+	
 
-		getp(&w)->agents.bosses.forEach(gameTime,[=](MenticsGame::Agent<>* a) { 
-		                                                                                    
-			glBegin(GL_TRIANGLES);
-			glColor3f(clr, clr, 0);
-			glVertex2d(-0.5, -0.5); 
-			glVertex2d(0.5, -0.5);  
-			glVertex2d(0, 1);  
-			glEnd();
-			clr += 1;
-			
-		});
-
-		getp(&w)->agents.minions.forEach(gameTime, [=](MenticsGame::Agent<>* a) {
-
-			glBegin(GL_TRIANGLES);
-			glColor3f(clr, clr, 0);
-			glVertex2d(-0.5, -0.5);
-			glVertex2d(0.5, -0.5);
-			glVertex2d(0, 1);
-			glEnd();
-			clr += 1;
-
-		});
+	
 
 		getp(&w)->agents.quips.forEach(gameTime, [=](MenticsGame::Agent<>* a) {
-
-			glBegin(GL_TRIANGLES);
-			glColor3f(clr, clr, 0);
-			glVertex2d(-0.5, -0.5);
-			glVertex2d(0.5, -0.5);
-			glVertex2d(0, 1);
-			glEnd();
-			clr += 1;
+	
+			MenticsGame::vect3 pos;
+			MenticsGame::vect3 vel;            
+			a->trajectory.get(gameTime)->posVel(gameTime, pos, vel);                      
+			draw_cube(pos);
 
 		});
 
-		getp(&w)->agents.shots.forEach(gameTime, [=](MenticsGame::Agent<>* a) {
-
-			glBegin(GL_TRIANGLES);
-			glColor3f(clr, clr, 0);
-			glVertex2d(-0.5, -0.5);
-			glVertex2d(0.5, -0.5);
-			glVertex2d(0, 1);
-			glEnd();
-			clr += 1;
-
-		});
-
-		glBegin(GL_TRIANGLES);
-		glColor3f(clr, clr, 0);
-		glVertex2d(-0.5, -0.5);
-		glVertex2d(0.5, -0.5);
-		glVertex2d(0, 1);
-		glEnd();
-		clr += 1;
-
-		clr = 0;
+	
 		
 
         ImGui::Render();
@@ -209,4 +173,60 @@ int main(int, char**)
     glfwTerminate();
 
     return 0;
+}
+
+
+void draw_cube(MenticsGame::vect3 p)
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear color and depth buffers
+	glMatrixMode(GL_MODELVIEW);     // To operate on model-view matrix
+
+									// Render a color-cube consisting of 6 quads with different colors
+	glLoadIdentity();
+	glBegin(GL_QUADS);                // Begin drawing the color cube with 6 quads
+									  // Top face (y = 1.0f)
+									  // Define vertices in counter-clockwise (CCW) order with normal pointing out
+	glColor3f(0.0f, 1.0f, 0.0f);     // Green
+	glVertex3f(1.0f, 1.0f, -1.0f);
+	glVertex3f(-1.0f, 1.0f, -1.0f);
+	glVertex3f(-1.0f, 1.0f, 1.0f);
+	glVertex3f(1.0f, 1.0f, 1.0f);
+
+	// Bottom face (y = -1.0f)
+	glColor3f(1.0f, 0.5f, 0.0f);     // Orange
+	glVertex3f(1.0f, -1.0f, 1.0f);
+	glVertex3f(-1.0f, -1.0f, 1.0f);
+	glVertex3f(-1.0f, -1.0f, -1.0f);
+	glVertex3f(1.0f, -1.0f, -1.0f);
+
+	// Front face  (z = 1.0f)
+	glColor3f(1.0f, 0.0f, 0.0f);     // Red
+	glVertex3f(1.0f, 1.0f, 1.0f);
+	glVertex3f(-1.0f, 1.0f, 1.0f);
+	glVertex3f(-1.0f, -1.0f, 1.0f);
+	glVertex3f(1.0f, -1.0f, 1.0f);
+
+	// Back face (z = -1.0f)
+	glColor3f(1.0f, 1.0f, 0.0f);     // Yellow
+	glVertex3f(1.0f, -1.0f, -1.0f);
+	glVertex3f(-1.0f, -1.0f, -1.0f);
+	glVertex3f(-1.0f, 1.0f, -1.0f);
+	glVertex3f(1.0f, 1.0f, -1.0f);
+
+	// Left face (x = -1.0f)
+	glColor3f(0.0f, 0.0f, 1.0f);     // Blue
+	glVertex3f(-1.0f, 1.0f, 1.0f);
+	glVertex3f(-1.0f, 1.0f, -1.0f);
+	glVertex3f(-1.0f, -1.0f, -1.0f);
+	glVertex3f(-1.0f, -1.0f, 1.0f);
+
+	// Right face (x = 1.0f)
+	glColor3f(1.0f, 0.0f, 1.0f);     // Magenta
+	glVertex3f(1.0f, 1.0f, -1.0f);
+	glVertex3f(1.0f, 1.0f, 1.0f);
+	glVertex3f(1.0f, -1.0f, 1.0f);
+	glVertex3f(1.0f, -1.0f, -1.0f);
+	glEnd();  // End of drawing color-cube
+
+	
 }
