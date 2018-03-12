@@ -150,7 +150,7 @@ int main(int, char**)
 
 	
 
-		getp(&w)->agents.quips.forEach(gameTime, [=](MenticsGame::Agent<>* a) {
+		getp(&w)->agents.quips.forEach(gameTime, [gameTime](MenticsGame::Agent<>* a) {
 	
 			MenticsGame::vect3 pos;
 			MenticsGame::vect3 vel;            
