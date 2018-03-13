@@ -29,12 +29,21 @@ static void error_callback(int error, const char* description)
     fprintf(stderr, "Error %d: %s\n", error, description);
 }
 
+float move = 0.0;
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (key == GLFW_KEY_W && action == GLFW_PRESS)
+		move += 0.1;
+		
+}
+
 void drawCube(MenticsGame::vect3);
 
 int main(int, char**)
 {
     // Setup window
     glfwSetErrorCallback(error_callback);
+	
     if (!glfwInit())
         return 1;
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -47,7 +56,7 @@ int main(int, char**)
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
     glewInit();
-
+	glfwSetKeyCallback(window, key_callback);
     
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -77,7 +86,7 @@ int main(int, char**)
     // Main loop
 	
 	MenticsGame::World w(0);
-	w.createQuip(0);
+	
 	
 	TimePoint gameTime = 0;
 	TimePoint lastLoopTime;
@@ -89,7 +98,7 @@ int main(int, char**)
 	glShadeModel(GL_SMOOTH);   // Enable smooth shading
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);  // Nice perspective corrections
 	
-	
+	int n = 1000;
 
 	lastLoopTime = MenticsGame::currentTimeNanos();
     while (!glfwWindowShouldClose(window))
@@ -102,23 +111,37 @@ int main(int, char**)
         glfwPollEvents();
         ImGui_ImplGlfwGL3_NewFrame();
 
+		for (int i = 0; i < n; i++)w.createQuip(0); //create n quips
+	
+
         // 1. Show a simple window.
         // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets automatically appears in a window called "Debug".
         {
             static float f = 0.0f;
             static int counter = 0;
-			ImGui::Text("Game Time : %d | processing Time : %d", gameTime,  getpSched(&w)->getPT());         // Display some text (you can use a format string too)
+			ImGui::Text("Game Time : %d | processing Time : %d | quips : %d", gameTime,  getpSched(&w)->getPT(), n - n/2);         // Display some text (you can use a format string too)
             ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f    
             ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
-			
-            ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our windows open/close state
+			n += n; // double n
+
+            ImGui::Checkbox(move ? "Demo window" : "now true", &show_demo_window);      // Edit bools storing our windows open/close state
             ImGui::Checkbox("Another Window", &show_another_window);
 
-            if (ImGui::Button("Button"))                            // Buttons return true when clicked (NB: most widgets return true when edited/activated)
-                counter++;
+            if (ImGui::Button("forwards fast"))    
+                move += 1.0;
+			ImGui::SameLine();
+			if (ImGui::Button("forwards slow"))
+				move += 0.01;
+
+			if (ImGui::Button("backwards fast"))   
+				move -= 1.0;
+			ImGui::SameLine();
+			if (ImGui::Button("backwards slow"))
+				move -= 0.01;
+
             ImGui::SameLine();
-            ImGui::Text("counter = %d", counter);
+            ImGui::Text("move = %f", move);
 
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         }
@@ -159,9 +182,13 @@ int main(int, char**)
 		
 		});
 
-		drawCube(MenticsGame::vect3(-0.6, -0.2, 0.5));
-		drawCube(MenticsGame::vect3(-0.1, -0.2, 0.1));
+		
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		
+
+
+		//move = false;
         ImGui::Render();
         ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
@@ -179,7 +206,7 @@ int a;
 void drawCube(MenticsGame::vect3 pos)
 {
 	a++;
-	//if (a == 60)a = 0;
+
 	float x = pos.x();
 	float y = pos.y();
 	float z = pos.z();
@@ -190,7 +217,7 @@ void drawCube(MenticsGame::vect3 pos)
 
 	glTranslatef(-x, -y, -z);
 	glMatrixMode(GL_PROJECTION_MATRIX);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
 	glPushMatrix();
 	glRotatef(a, 1, 1, 0);
 	
@@ -246,7 +273,7 @@ void drawCube(MenticsGame::vect3 pos)
 	glPopMatrix();
 	glFlush();
 
-	glTranslatef(x, y, z);
+	glTranslatef(x, y, z+ move);
 }
 
 	
