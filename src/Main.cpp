@@ -101,7 +101,7 @@ int main(int, char**)
 	w.setTimeScale(1.0);
 	lastLoopTime = MenticsGame::currentTimeNanos();
 	
-	for (int i = 0; i < 1000; i++) w.createQuip(lastLoopTime + 1000000); //create n quips
+	for (int i = 0; i < 1000; i++) w.createQuip(1000000); //create n quips
 
 	while (!glfwWindowShouldClose(window))
     {
