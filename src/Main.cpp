@@ -29,7 +29,7 @@ static void error_callback(int error, const char* description)
     fprintf(stderr, "Error %d: %s\n", error, description);
 }
 
-void draw_cube(MenticsGame::vect3);
+void drawCube(MenticsGame::vect3);
 
 int main(int, char**)
 {
@@ -145,22 +145,22 @@ int main(int, char**)
         glfwGetFramebufferSize(window, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
         glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-   
+		glClear(GL_COLOR_BUFFER_BIT);
 	
 
 	
 
 		getp(&w)->agents.quips.forEach(gameTime, [gameTime](MenticsGame::Agent<>* a) {
-	
+		
 			MenticsGame::vect3 pos;
 			MenticsGame::vect3 vel;            
 			a->trajectory.get(gameTime)->posVel(gameTime, pos, vel);                      
-			draw_cube(pos);
-
+			drawCube(pos);
+		
 		});
 
-	
-		
+		drawCube(MenticsGame::vect3(-0.6, -0.2, 0.5));
+		drawCube(MenticsGame::vect3(-0.1, -0.2, 0.1));
 
         ImGui::Render();
         ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
@@ -175,58 +175,78 @@ int main(int, char**)
     return 0;
 }
 
-
-void draw_cube(MenticsGame::vect3 p)
+int a;
+void drawCube(MenticsGame::vect3 pos)
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear color and depth buffers
-	glMatrixMode(GL_MODELVIEW);     // To operate on model-view matrix
+	a++;
+	//if (a == 60)a = 0;
+	float x = pos.x();
+	float y = pos.y();
+	float z = pos.z();
 
-									// Render a color-cube consisting of 6 quads with different colors
-	glLoadIdentity();
-	glBegin(GL_QUADS);                // Begin drawing the color cube with 6 quads
-									  // Top face (y = 1.0f)
-									  // Define vertices in counter-clockwise (CCW) order with normal pointing out
-	glColor3f(0.0f, 1.0f, 0.0f);     // Green
-	glVertex3f(1.0f, 1.0f, -1.0f);
-	glVertex3f(-1.0f, 1.0f, -1.0f);
-	glVertex3f(-1.0f, 1.0f, 1.0f);
-	glVertex3f(1.0f, 1.0f, 1.0f);
+	const float sizex = 0.5f;
+	const float sizey = 0.5f;
+	const float sizez = 0.5f;
 
-	// Bottom face (y = -1.0f)
-	glColor3f(1.0f, 0.5f, 0.0f);     // Orange
-	glVertex3f(1.0f, -1.0f, 1.0f);
-	glVertex3f(-1.0f, -1.0f, 1.0f);
-	glVertex3f(-1.0f, -1.0f, -1.0f);
-	glVertex3f(1.0f, -1.0f, -1.0f);
+	glTranslatef(-x, -y, -z);
+	glMatrixMode(GL_PROJECTION_MATRIX);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glPushMatrix();
+	glRotatef(a, 1, 1, 0);
+	
+	
 
-	// Front face  (z = 1.0f)
-	glColor3f(1.0f, 0.0f, 0.0f);     // Red
-	glVertex3f(1.0f, 1.0f, 1.0f);
-	glVertex3f(-1.0f, 1.0f, 1.0f);
-	glVertex3f(-1.0f, -1.0f, 1.0f);
-	glVertex3f(1.0f, -1.0f, 1.0f);
+	glBegin(GL_QUADS);
 
-	// Back face (z = -1.0f)
-	glColor3f(1.0f, 1.0f, 0.0f);     // Yellow
-	glVertex3f(1.0f, -1.0f, -1.0f);
-	glVertex3f(-1.0f, -1.0f, -1.0f);
-	glVertex3f(-1.0f, 1.0f, -1.0f);
-	glVertex3f(1.0f, 1.0f, -1.0f);
+	glColor3f(1.0, 1.0, 0.0);
 
-	// Left face (x = -1.0f)
-	glColor3f(0.0f, 0.0f, 1.0f);     // Blue
-	glVertex3f(-1.0f, 1.0f, 1.0f);
-	glVertex3f(-1.0f, 1.0f, -1.0f);
-	glVertex3f(-1.0f, -1.0f, -1.0f);
-	glVertex3f(-1.0f, -1.0f, 1.0f);
+	// FRONT
+	glVertex3f(-sizex, -sizey, sizez);
+	glVertex3f(sizex, -sizey, sizez);
+	glVertex3f(sizex, sizey, sizez);
+	glVertex3f(-sizex, sizey, sizez);
 
-	// Right face (x = 1.0f)
-	glColor3f(1.0f, 0.0f, 1.0f);     // Magenta
-	glVertex3f(1.0f, 1.0f, -1.0f);
-	glVertex3f(1.0f, 1.0f, 1.0f);
-	glVertex3f(1.0f, -1.0f, 1.0f);
-	glVertex3f(1.0f, -1.0f, -1.0f);
-	glEnd();  // End of drawing color-cube
+	// BACK
+	glVertex3f(-sizex, -sizey, -sizez);
+	glVertex3f(-sizex, sizey, -sizez);
+	glVertex3f(sizex, sizey, -sizez);
+	glVertex3f(sizex, -sizey, -sizez);
+
+	glColor3f(0.0, 1.0, 0.0);
+
+	// LEFT
+	glVertex3f(-sizex, -sizey, sizez);
+	glVertex3f(-sizex, sizey, sizez);
+	glVertex3f(-sizex, sizey, -sizez);
+	glVertex3f(-sizex, -sizey, -sizez);
+
+	// RIGHT
+	glVertex3f(sizex, -sizey, -sizez);
+	glVertex3f(sizex, sizey, -sizez);
+	glVertex3f(sizex, sizey, sizez);
+	glVertex3f(sizex, -sizey, sizez);
+
+	glColor3f(0.0, 0.0, 1.0);
+
+	// TOP
+	glVertex3f(-sizex, sizey, sizez);
+	glVertex3f(sizex, sizey, sizez);
+	glVertex3f(sizex, sizey, -sizez);
+	glVertex3f(-sizex, sizey, -sizez);
+
+	// BOTTOM
+	glVertex3f(-sizex, -sizey, sizez);
+	glVertex3f(-sizex, -sizey, -sizez);
+	glVertex3f(sizex, -sizey, -sizez);
+	glVertex3f(sizex, -sizey, sizez);
+	glPushMatrix();
+	
+	
+	glEnd();
+	glPopMatrix();
+	glFlush();
+
+	glTranslatef(x, y, z);
+}
 
 	
-}
