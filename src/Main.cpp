@@ -98,10 +98,12 @@ int main(int, char**)
 	glShadeModel(GL_SMOOTH);   // Enable smooth shading
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);  // Nice perspective corrections
 	
-	int n = 1000;
-
+	w.setTimeScale(1.0);
 	lastLoopTime = MenticsGame::currentTimeNanos();
-    while (!glfwWindowShouldClose(window))
+	
+	for (int i = 0; i < 1000; i++) w.createQuip(lastLoopTime + 1000000); //create n quips
+
+	while (!glfwWindowShouldClose(window))
     {
 		
 		newLoopTime = MenticsGame::currentTimeNanos();
@@ -111,7 +113,6 @@ int main(int, char**)
         glfwPollEvents();
         ImGui_ImplGlfwGL3_NewFrame();
 
-		for (int i = 0; i < n; i++)w.createQuip(0); //create n quips
 	
 
         // 1. Show a simple window.
@@ -119,11 +120,9 @@ int main(int, char**)
         {
             static float f = 0.0f;
             static int counter = 0;
-			ImGui::Text("Game Time : %d | processing Time : %d | quips : %d", gameTime,  getpSched(&w)->getPT(), n - n/2);         // Display some text (you can use a format string too)
+			ImGui::Text("Game Time : %.2f | processing Time : %d | quips : %d", (double)w.getGameTime()/1000000000,  getpSched(&w)->getPT(), 1000);         // Display some text (you can use a format string too)
             ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f    
             ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-			n += n; // double n
 
             ImGui::Checkbox(move ? "Demo window" : "now true", &show_demo_window);      // Edit bools storing our windows open/close state
             ImGui::Checkbox("Another Window", &show_another_window);
@@ -192,6 +191,7 @@ int main(int, char**)
         ImGui::Render();
         ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
+		std::this_thread::sleep_for(std::chrono::milliseconds(5));
     }
 
     // Cleanup
