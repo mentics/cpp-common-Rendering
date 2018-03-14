@@ -133,13 +133,13 @@ int main(int, char**)
             ImGui::Checkbox("Another Window", &show_another_window);
 
             if (ImGui::Button("forwards fast"))    
-                move += 1.0;
+                move += 0.5;
 			ImGui::SameLine();
 			if (ImGui::Button("forwards slow"))
 				move += 0.01;
 
 			if (ImGui::Button("backwards fast"))   
-				move -= 1.0;
+				move -= 0.5;
 			ImGui::SameLine();
 			if (ImGui::Button("backwards slow"))
 				move -= 0.01;
@@ -160,13 +160,7 @@ int main(int, char**)
             ImGui::End();
         }
 
-        // 3. Show the ImGui demo window. Most of the sample code is in ImGui::ShowDemoWindow(). Read its code to learn more about Dear ImGui!
-        if (show_demo_window)
-        {
-            ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver); // Normally user code doesn't need/want to call this because positions are saved in .ini file anyway. Here we just want to make the demo initial state a bit more friendly!
-            ImGui::ShowDemoWindow(&show_demo_window);
-        }
-
+       
         // Rendering
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
@@ -181,26 +175,11 @@ int main(int, char**)
 			MenticsGame::vect3 pos;
 			MenticsGame::vect3 vel;
 			a->trajectory.get(secondsGameTime)->posVel(secondsGameTime, pos, vel);
-			drawCube(MenticsGame::vect3(0.5, 0.5, -0.5));
-			MenticsGame::mlog->info("pos : {0} , {1}, {2}", pos.x(), pos.y(), pos.z());
+			drawCube(MenticsGame::vect3(pos.x(), pos.y(), pos.z()));
+		
 		
 		});
 		
-		//drawCube(MenticsGame::vect3(0.5, 0.5, -0.5));
-		//drawCube(MenticsGame::vect3(0.5, -0.5, -1));
-		//drawCube(MenticsGame::vect3(-0.5, 0.5, -0.9));
-		//drawCube(MenticsGame::vect3(-0.5, 0.2, -0.2));
-		//drawCube(MenticsGame::vect3(0.5, 0.5, 0.5));
-		//drawCube(MenticsGame::vect3(0.5, -0.5, 1));
-		//drawCube(MenticsGame::vect3(-0.5, 0.5, 0.9));
-		//drawCube(MenticsGame::vect3(-0.5, 0.2, 0.2));
-		
-		
-
-		
-
-
-		//move = false;
         ImGui::Render();
         ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
@@ -286,7 +265,7 @@ void drawCube(MenticsGame::vect3 pos)
 	glPopMatrix();
 	glFlush();
 
-	glTranslatef(x, y, z);
+	glTranslatef(x, y, z+move);
 }
 
 	
