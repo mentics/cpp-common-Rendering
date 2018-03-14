@@ -104,7 +104,9 @@ int main(int, char**)
 	w.setTimeScale(1.0);
 	lastLoopTime = MenticsGame::currentTimeNanos();
 	
-	for (int i = 0; i < 1000; i++) w.createQuip(1000000); //create n quips
+	for (int i = 0; i < 1000; i++) {
+		w.createQuip(w.getGameTime() + 1000000, makeTrajRandom(5.0, 0.0, 0.0));
+	}
 
 	while (!glfwWindowShouldClose(window))
     {
@@ -173,13 +175,12 @@ int main(int, char**)
 		glClear(GL_COLOR_BUFFER_BIT);
 	
 
-	
-
-		getp(&w)->agents.quips.forEach(gameTime, [gameTime](MenticsGame::Agent<>* a) {
+		getp(&w)->agents.quips.forEach(gameTime, [&w](MenticsGame::Agent<>* a) {
 		
+			double secondsGameTime = ((double)w.getGameTime())/1000000000;
 			MenticsGame::vect3 pos;
-			MenticsGame::vect3 vel;            
-			a->trajectory.get(gameTime)->posVel(gameTime, pos, vel);                      
+			MenticsGame::vect3 vel;
+			a->trajectory.get(secondsGameTime)->posVel(secondsGameTime, pos, vel);
 			drawCube(MenticsGame::vect3(0.5, 0.5, -0.5));
 			MenticsGame::mlog->info("pos : {0} , {1}, {2}", pos.x(), pos.y(), pos.z());
 		
