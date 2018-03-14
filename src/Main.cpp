@@ -172,8 +172,8 @@ int main(int, char**)
         glfwGetFramebufferSize(window, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
         glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-		glClear(GL_COLOR_BUFFER_BIT);
-	
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		getp(&w)->agents.quips.forEach(gameTime, [&w](MenticsGame::Agent<>* a) {
 		
@@ -185,12 +185,17 @@ int main(int, char**)
 			MenticsGame::mlog->info("pos : {0} , {1}, {2}", pos.x(), pos.y(), pos.z());
 		
 		});
-		drawCube(MenticsGame::vect3(0.5, 0.5, -0.5));
-		drawCube(MenticsGame::vect3(0.5, -0.5, -1));
-		drawCube(MenticsGame::vect3(-0.5, 0.5, -0.9));
-		drawCube(MenticsGame::vect3(-0.5, 0.2, -0.2));
 		
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//drawCube(MenticsGame::vect3(0.5, 0.5, -0.5));
+		//drawCube(MenticsGame::vect3(0.5, -0.5, -1));
+		//drawCube(MenticsGame::vect3(-0.5, 0.5, -0.9));
+		//drawCube(MenticsGame::vect3(-0.5, 0.2, -0.2));
+		//drawCube(MenticsGame::vect3(0.5, 0.5, 0.5));
+		//drawCube(MenticsGame::vect3(0.5, -0.5, 1));
+		//drawCube(MenticsGame::vect3(-0.5, 0.5, 0.9));
+		//drawCube(MenticsGame::vect3(-0.5, 0.2, 0.2));
+		
+		
 
 		
 
@@ -281,7 +286,7 @@ void drawCube(MenticsGame::vect3 pos)
 	glPopMatrix();
 	glFlush();
 
-	glTranslatef(x, y, z+ move);
+	glTranslatef(x, y, z);
 }
 
 	
