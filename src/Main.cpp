@@ -18,9 +18,12 @@
 #include "Agent.h"
 #include "glm\glm.hpp"
 #include "glm\gtc\matrix_transform.hpp"  
+#include "MenticsMath.h"
 
 // for now
 #include "..\..\simulator\src\Scheduler.cpp"
+
+using namespace MenticsGame;
 
 int clr = 0;
 
@@ -177,10 +180,14 @@ int main(int, char**)
 			MenticsGame::vect3 pos;
 			MenticsGame::vect3 vel;            
 			a->trajectory.get(gameTime)->posVel(gameTime, pos, vel);                      
-			drawCube(pos);
+			drawCube(MenticsGame::vect3(0.5, 0.5, -0.5));
+			MenticsGame::mlog->info("pos : {0} , {1}, {2}", pos.x(), pos.y(), pos.z());
 		
 		});
-
+		drawCube(MenticsGame::vect3(0.5, 0.5, -0.5));
+		drawCube(MenticsGame::vect3(0.5, -0.5, -1));
+		drawCube(MenticsGame::vect3(-0.5, 0.5, -0.9));
+		drawCube(MenticsGame::vect3(-0.5, 0.2, -0.2));
 		
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -198,7 +205,7 @@ int main(int, char**)
     ImGui_ImplGlfwGL3_Shutdown();
     ImGui::DestroyContext();
     glfwTerminate();
-
+	while (true) {}
     return 0;
 }
 
