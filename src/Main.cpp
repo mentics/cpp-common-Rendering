@@ -69,31 +69,14 @@ int main(int, char**)
    
     ImGui::StyleColorsDark();
     
-	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
-	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-	glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
-	glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
 
-	glm::mat4 view;
-
-	view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f), 
-		glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 1.0f, 0.0f));
-
-    bool show_demo_window = true;
-    bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // Main loop
 	
 	MenticsGame::World w(0);
 	
-	
-	TimePoint gameTime = 0;
-	TimePoint lastLoopTime;
-	TimePoint newLoopTime;
+
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
 	glClearDepth(1.0f);                   // Set background depth to farthest
 	glEnable(GL_DEPTH_TEST);   // Enable depth testing for z-culling
@@ -102,18 +85,16 @@ int main(int, char**)
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);  // Nice perspective corrections
 	
 	w.setTimeScale(1.0);
-	lastLoopTime = MenticsGame::currentTimeNanos();
+
 	
-	for (int i = 0; i < 1000; i++) {
+	for (int i = 0; i < 100; i++) {
 		w.createQuip(w.getGameTime() + 1000000, makeTrajRandom(5.0, 0.0, 0.0));
 	}
 
 	while (!glfwWindowShouldClose(window))
     {
+	
 		
-		newLoopTime = MenticsGame::currentTimeNanos();
-		gameTime += newLoopTime - lastLoopTime;
-		lastLoopTime = newLoopTime;
         
         glfwPollEvents();
         ImGui_ImplGlfwGL3_NewFrame();
@@ -129,8 +110,7 @@ int main(int, char**)
             ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f    
             ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
-            ImGui::Checkbox(move ? "Demo window" : "now true", &show_demo_window);      // Edit bools storing our windows open/close state
-            ImGui::Checkbox("Another Window", &show_another_window);
+        
 
             if (ImGui::Button("forwards fast"))    
                 move += 0.5;
@@ -150,17 +130,6 @@ int main(int, char**)
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         }
 
-        // 2. Show another simple window. In most cases you will use an explicit Begin/End pair to name your windows.
-        if (show_another_window)
-        {
-            ImGui::Begin("Another Window", &show_another_window);
-            ImGui::Text("Hello from another window!");
-            if (ImGui::Button("Close Me"))
-                show_another_window = false;
-            ImGui::End();
-        }
-
-       
         // Rendering
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
@@ -169,7 +138,7 @@ int main(int, char**)
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		getp(&w)->agents.quips.forEach(gameTime, [&w](MenticsGame::Agent<>* a) {
+		getp(&w)->agents.quips.forEach(w.getGameTime(), [&w](MenticsGame::Agent<>* a) {
 		
 			double secondsGameTime = ((double)w.getGameTime())/1000000000;
 			MenticsGame::vect3 pos;
