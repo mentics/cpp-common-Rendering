@@ -26,7 +26,7 @@ GLuint compute_handle;
 
 void loadComputeShader()
 {
-	std::string fText = textFileRead("ComputeShader.txt"); // Read in the vertex shader       
+	std::string fText = textFileRead("ComputeShader.glsl"); // Read in the vertex shader       
 
 	const char *Text = fText.c_str();
 
@@ -39,7 +39,7 @@ void loadComputeShader()
 	glAttachShader(compute_handle, compute_shader);
 	//glDeleteShader(compute_shader);
 	glLinkProgram(compute_handle);
-	validateShader(compute_shader, "ComputeShader.txt");
+	validateShader(compute_shader, "ComputeShader.glsl");
 	validateProgram(compute_handle);
 
 }
@@ -79,7 +79,7 @@ int main() {
 		glfwTerminate();
 		return 0;
 	}
-	Shader shaders("VertexShader.txt", "FragmentShader.txt");
+	Shader shaders("VertexShader.glsl", "FragmentShader.glsl");
 
 	loadComputeShader();
 

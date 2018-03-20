@@ -113,7 +113,7 @@
     <PostBuildEvent>
       <Command>copy "$(SolutionDir)lib\glfw\lib-mingw-w64\*.dll" "$(OutDir)"
 copy "$(SolutionDir)lib\glew\bin\Release\x64\*.dll" "$(OutDir)"
-</Command>
+copy "$(ProjectDir)src\*.glsl" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
