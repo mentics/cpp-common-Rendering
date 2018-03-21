@@ -197,9 +197,9 @@ copy "$(ProjectDir)src\*.glsl" "$(OutDir)"</Command>
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="ComputeShader.txt" />
-    <Text Include="FragmentShader.txt" />
-    <Text Include="VertexShader.txt" />
+    <Text Include="src\ComputeShader.glsl" />
+    <Text Include="src\FragmentShader.glsl" />
+    <Text Include="src\VertexShader.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

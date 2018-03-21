@@ -1,4 +1,4 @@
-// windows 10 x64 Visual Studio 17
+﻿// windows 10 x64 Visual Studio 17
 #include "stdafx.h"
 #pragma comment(linker, "/SUBSYSTEM:CONSOLE /ENTRY:mainCRTStartup")
 #pragma comment(lib,"opengl32.lib")
@@ -14,8 +14,10 @@
 #include <string>
 #include <fstream>
 #include "glm\glm.hpp"
-
+#include "MenticsCommon.h"
 #include "Shader.h"
+
+using namespace MenticsGame;
 
 void window_size_callback(GLFWwindow* window, int width, int height){
 	glViewport(0, 0, width, height); 
@@ -26,11 +28,11 @@ GLuint compute_handle;
 
 void loadComputeShader()
 {
-	std::string fText = textFileRead("ComputeShader.glsl"); // Read in the vertex shader       
+	std::string fText = textFileRead("ComputeShader.glsl");      
 
-	const char *Text = fText.c_str();
+	const char *Text = fText.c_str();  
 
-	//cscontent += '\0';
+
 	std::cout << "\n compute shader ------------\n"<< Text << std::endl;
 	compute_handle = glCreateProgram();
 	GLuint compute_shader = glCreateShader(GL_COMPUTE_SHADER);
@@ -43,6 +45,13 @@ void loadComputeShader()
 	validateProgram(compute_handle);
 
 }
+
+struct ssbostruct
+{
+	GLfloat r;
+	GLfloat g;
+	GLfloat b;
+};
 
 int main() {
 
@@ -84,13 +93,13 @@ int main() {
 	loadComputeShader();
 
 
-	
-	GLuint textureId;
-	glGenTextures(1, &textureId);
+	ssbostruct data = { 5,5,5 };
+	GLuint ssbo = 0;
+	glGenBuffers(1, &ssbo);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(ssbostruct), &data, GL_DYNAMIC_COPY); 
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, textureId); 
-	
+	// VAO
 	GLuint vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
@@ -102,39 +111,55 @@ int main() {
 	};
 
 	GLuint vertexbuffer;
-	// Generate 1 buffer, put the resulting identifier in vertexbuffer
 	glGenBuffers(1, &vertexbuffer);
-	// The following commands will talk about our 'vertexbuffer' buffer
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	// Give our vertices to OpenGL.
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
 	
 	
 	glfwSetWindowSizeCallback(window, window_size_callback);
-	glViewport(0, 0, width, height);
+	glViewport(0, 0, width, height);  
 
+	// UBO
+
+	ssbostruct data2 = { 1.0f,0.0f,1.0f };
+	GLuint ubo = 0;
+	glGenBuffers(1, &ubo);  
+	glBindBuffer(GL_UNIFORM_BUFFER, ubo);  
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(ssbostruct), &data2, GL_DYNAMIC_DRAW);
+	  
+	// Counter Buffer
 	GLuint counterBuffer;
 
 	glGenBuffers(1, &counterBuffer);
 	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, counterBuffer);
 	glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint) * 1, NULL, GL_STATIC_DRAW);
 	glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 1, counterBuffer);
-	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
+	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0); 
 	// unbind the buffer 
-	//glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
+	
 
 	
 	
-
+	const int windowSize = 20;
+	uint64_t frameTimes[windowSize];
+	uint8_t index = 0;
 	do {
-		glfwPollEvents();
-	
+		frameTimes[index] = currentTimeNanos();
+		uint8_t prevIndex = index - 1 < 0 ? windowSize - 1 : index - 1;
+		double dt = (frameTimes[index] - frameTimes[prevIndex]) / (double)windowSize;
+		if (index == 0) { 
+			printf("Average frame time millis: %.4f\n", dt / 1e6);   
+		}   
+		index = (index + 1) % windowSize;    
+		glfwPollEvents(); 
+	 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
-		//glUniform1ui(glGetUniformLocation(compute_handle, "cr"), atomicsBuffer);
 		glUseProgram(compute_handle);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssbo);
+		glBindBufferBase(GL_UNIFORM_BUFFER, 4, ubo);
 		glDispatchCompute(1, 1, 1);
 		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
 		//now read the counter
@@ -144,16 +169,12 @@ int main() {
 		printf("counter: %i \n", Counter[0]);
 		glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
 		
-
-		//glUniform1i(glGetUniformLocation(compute_handle, "tex"), 0);
-		//GLfloat *ptrToData = (GLfloat*)glMapBufferRange(GL_TEXTURE_2D, 0, 1, GL_MAP_READ_BIT | GL_MAP_WRITE_BIT);
-		
-	
-		
+		 
+		 
 		shaders.bind();
-		//glUniform1i(glGetUniformLocation(shaders.id(), "tex"), 0); 
 		//GLint Resolution =  glGetUniformLocation(P, "Resolution"); 
-		
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssbo);
+		glBindBufferBase(GL_UNIFORM_BUFFER, 4, ubo); 
 		
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
