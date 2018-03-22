@@ -160,13 +160,17 @@ int main() {
 		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, counterBuffer);
 		Counter = (GLuint*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(GLuint) * 1, GL_MAP_READ_BIT);
 		printf("counter: %i \n", Counter[0]);
-		memset(Counter, 0, sizeof(GLuint));
+		memset(Counter, 0, sizeof(GLuint)); 
 		glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
 
 	
 
 		shaders.bind();
-		//GLint Resolution =  glGetUniformLocation(P, "Resolution"); 
+		GLint Resolution =  glGetUniformLocation(shaders.id(), "Resolution");
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		glUniform2f(Resolution,(float)w,(float)h);
+
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssbo);
 
 		glEnableVertexAttribArray(0);
