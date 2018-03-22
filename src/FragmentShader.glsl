@@ -3,14 +3,13 @@
 
 out vec4 outColor;
 
-layout (std140, binding = 4) uniform data
-{ 
-	 float r;
-	 float g;
-	 float b; 
+
+layout(std430, binding = 3) buffer c
+{
+     float arr[];  
 }dat;
 
+
 void main(){
-  
- outColor = vec4(dat.r, dat.g, dat.b, 1.0);
+   outColor = vec4(dat.arr[0], dat.arr[1], dat.arr[2], 1.0);
 }

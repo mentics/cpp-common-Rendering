@@ -13,14 +13,14 @@
 #include <cstdlib>
 #include <string>
 #include <fstream>
-#include "glm\glm.hpp"
+#include "glm\glm.hpp" 
 #include "MenticsCommon.h"
 #include "Shader.h"
 
 using namespace MenticsGame;
 
-void window_size_callback(GLFWwindow* window, int width, int height){
-	glViewport(0, 0, width, height); 
+void window_size_callback(GLFWwindow* window, int width, int height) {
+	glViewport(0, 0, width, height);
 }
 
 
@@ -28,15 +28,15 @@ GLuint compute_handle;
 
 void loadComputeShader()
 {
-	std::string fText = textFileRead("ComputeShader.glsl");      
+	std::string fText = textFileRead("ComputeShader.glsl");
 
-	const char *Text = fText.c_str();  
+	const char *Text = fText.c_str();
 
 
-	std::cout << "\n compute shader ------------\n"<< Text << std::endl;
+	std::cout << "\n compute shader ------------\n" << Text << std::endl;
 	compute_handle = glCreateProgram();
 	GLuint compute_shader = glCreateShader(GL_COMPUTE_SHADER);
-	glShaderSource(compute_shader, 1, &Text, NULL); 
+	glShaderSource(compute_shader, 1, &Text, NULL);
 	glCompileShader(compute_shader);
 	glAttachShader(compute_handle, compute_shader);
 	//glDeleteShader(compute_shader);
@@ -61,14 +61,14 @@ int main() {
 	}
 
 
-	
+
 	const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
 	static const int width = mode->width / 2;
 	static const int height = mode->height / 2;
 
 
-	GLFWwindow* window =  glfwCreateWindow(width, height, u8"Test", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(width, height, u8"Test", nullptr, nullptr);
 
 	if (!window) {
 		glfwTerminate();
@@ -76,7 +76,7 @@ int main() {
 		return 0;
 	}
 
-	
+
 
 	glfwMakeContextCurrent(window);
 	glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_FALSE);
@@ -92,12 +92,12 @@ int main() {
 
 	loadComputeShader();
 
-
-	ssbostruct data = { 5,5,5 };
+	// SSBO
+	GLfloat data[] = { 0.0f, 1.0f, 0.0f };
 	GLuint ssbo = 0;
 	glGenBuffers(1, &ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(ssbostruct), &data, GL_DYNAMIC_COPY); 
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(GLfloat) * 3, &data, GL_DYNAMIC_COPY);
 
 	// VAO
 	GLuint vao;
@@ -115,19 +115,12 @@ int main() {
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
-	
-	
+
+
 	glfwSetWindowSizeCallback(window, window_size_callback);
-	glViewport(0, 0, width, height);  
+	glViewport(0, 0, width, height);
 
-	// UBO
 
-	ssbostruct data2 = { 1.0f,0.0f,1.0f };
-	GLuint ubo = 0;
-	glGenBuffers(1, &ubo);  
-	glBindBuffer(GL_UNIFORM_BUFFER, ubo);  
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(ssbostruct), &data2, GL_DYNAMIC_DRAW);
-	  
 	// Counter Buffer
 	GLuint counterBuffer;
 
@@ -135,12 +128,12 @@ int main() {
 	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, counterBuffer);
 	glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint) * 1, NULL, GL_STATIC_DRAW);
 	glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 1, counterBuffer);
-	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0); 
+	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
 	// unbind the buffer 
-	
 
-	
-	
+
+
+
 	const int windowSize = 20;
 	uint64_t frameTimes[windowSize];
 	uint8_t index = 0;
@@ -148,18 +141,17 @@ int main() {
 		frameTimes[index] = currentTimeNanos();
 		uint8_t prevIndex = index - 1 < 0 ? windowSize - 1 : index - 1;
 		double dt = (frameTimes[index] - frameTimes[prevIndex]) / (double)windowSize;
-		if (index == 0) { 
-			printf("Average frame time millis: %.4f\n", dt / 1e6);   
-		}   
-		index = (index + 1) % windowSize;    
-		glfwPollEvents(); 
-	 
+		if (index == 0) {
+			printf("Average frame time millis: %.4f\n", dt / 1e6);
+		}
+		index = (index + 1) % windowSize;
+		glfwPollEvents();
+
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
+
 		glUseProgram(compute_handle);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssbo);
-		glBindBufferBase(GL_UNIFORM_BUFFER, 4, ubo);
 		glDispatchCompute(1, 1, 1);
 		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
 		//now read the counter
@@ -168,14 +160,13 @@ int main() {
 		Counter = (GLuint*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(GLuint) * 1, GL_MAP_READ_BIT);
 		printf("counter: %i \n", Counter[0]);
 		glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
-		
-		 
-		 
+
+
+
 		shaders.bind();
 		//GLint Resolution =  glGetUniformLocation(P, "Resolution"); 
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssbo);
-		glBindBufferBase(GL_UNIFORM_BUFFER, 4, ubo); 
-		
+
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 		glVertexAttribPointer(
@@ -187,9 +178,9 @@ int main() {
 			(void*)0            // array buffer offset
 		);
 		// Draw the triangle !
-		glDrawArrays(GL_TRIANGLES, 0, 3); 
-		
-	
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+
 		glDisableVertexAttribArray(0);
 
 
