@@ -153,7 +153,7 @@ int main() {
 
 		glUseProgram(compute_handle);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssbo);
-		glDispatchCompute(1, 1, 1);
+		glDispatchCompute(1000000, 1, 1);
 		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
 		//now read the counter
 		GLuint *Counter;
@@ -162,8 +162,6 @@ int main() {
 		printf("counter: %i \n", Counter[0]);
 		memset(Counter, 0, sizeof(GLuint)); 
 		glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
-
-	
 
 		shaders.bind();
 		GLint Resolution =  glGetUniformLocation(shaders.id(), "Resolution");

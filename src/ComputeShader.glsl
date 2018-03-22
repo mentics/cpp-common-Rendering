@@ -10,6 +10,8 @@ layout(std430, binding = 3) buffer c
 
 
 void main() {
-	clr.arr[0] = 1.0;
-	atomicCounterIncrement(counter);
+	if (mod(gl_WorkGroupID.x, 100) == 0) {
+		uint tmp = atomicCounterIncrement(counter);
+		clr.arr[tmp] = mod(tmp, 1000) / 1000.0;
+	}
 }

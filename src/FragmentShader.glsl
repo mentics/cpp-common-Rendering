@@ -11,6 +11,7 @@ layout(std430, binding = 3) buffer c
 
 uniform vec2 Resolution;
 
-void main(){
-   outColor = vec4(dat.arr[0], dat.arr[1], dat.arr[2], 1.0);
+void main() {
+   vec2 test = vec2(gl_FragCoord.x/Resolution.x, gl_FragCoord.y/Resolution.y);
+   outColor = vec4(test.x, test.y, 0, 1.0);
 }
