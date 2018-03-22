@@ -93,11 +93,18 @@ int main() {
 	loadComputeShader();
 
 	// SSBO
-	GLfloat data[] = { 0.0f, 1.0f, 0.0f };
 	GLuint ssbo = 0;
 	glGenBuffers(1, &ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+	
+
+	// SSBO 2
+	GLfloat data[] = { 0.0f, 1.0f, 0.0f };
+	GLuint ssbo2 = 0;
+	glGenBuffers(1, &ssbo2);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo2);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(GLfloat) * 3, &data, GL_DYNAMIC_COPY);
+
 
 	// VAO
 	GLuint vao;
@@ -153,6 +160,7 @@ int main() {
 
 		glUseProgram(compute_handle);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssbo);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, ssbo2);
 		glDispatchCompute(1000000, 1, 1);
 		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
 		//now read the counter
