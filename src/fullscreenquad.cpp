@@ -160,19 +160,25 @@ int main() {
 
 		glUseProgram(compute_handle);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssbo);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, ssbo2);
-		glDispatchCompute(1000000, 1, 1);
+
+		// update ssbo2
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo2);
+		GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
+		int n = 0;
+		memcpy(p, &n, sizeof(GLfloat)*3);
+		glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
+		glDispatchCompute(1000000, 1, 1); 
 		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
-		//now read the counter
+	
 		GLuint *Counter;
 		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, counterBuffer);
-		Counter = (GLuint*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(GLuint) * 1, GL_MAP_READ_BIT);
-		printf("counter: %i \n", Counter[0]);
-		memset(Counter, 0, sizeof(GLuint)); 
-		glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
+		glInvalidateBufferData(GL_ATOMIC_COUNTER_BUFFER);
+		glClearBufferData(GL_ATOMIC_COUNTER_BARRIER_BIT, GL_UNSIGNED_INT, GL_UNSIGNED_INT, 0, 0);
 
 		shaders.bind();
-		GLint Resolution =  glGetUniformLocation(shaders.id(), "Resolution");
+		GLint Resolution = glGetUniformLocation(shaders.id(), "Resolution");
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 		glUniform2f(Resolution,(float)w,(float)h);
