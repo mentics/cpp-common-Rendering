@@ -7,7 +7,6 @@ uniform vec3 ray00;
 uniform vec3 ray10;
 uniform vec3 ray01;
 uniform vec3 ray11;
-
 uniform vec2 Resolution;
 
 struct Sphere {

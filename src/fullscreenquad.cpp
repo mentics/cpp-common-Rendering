@@ -16,6 +16,8 @@
 #include "glm\glm.hpp" 
 #include "MenticsCommon.h"
 #include "Shader.h"
+#include "glm\gtx\transform.hpp"
+#include "World.h" 
 
 using namespace MenticsGame;
 
@@ -49,13 +51,31 @@ void loadComputeShader()
 struct ssbostruct
 {
 	GLfloat r;
-	GLfloat g;
+	GLfloat g; 
 	GLfloat b;
 };
 
-int main() {
+glm::vec3 toGlm(vect3 v)
+{
+	return glm::vec3(v.x(), v.y(), v.z());
+}
+ 
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
+glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
+glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
+glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),
+	glm::vec3(0.0f, 0.0f, 0.0f),
+	glm::vec3(0.0f, 1.0f, 0.0f));
 
-	if (!glfwInit()) {
+int main() {
+	glm::vec3 eye = { 0, 0, 0 };
+	float gameTime = (double)currentTimeNanos() / 1000000000;
+	float dt = 1;
+
+	if (!glfwInit()) { 
 		fprintf(stderr, "Failed to initialize glfw\n");
 		return 0;
 	}
@@ -77,7 +97,6 @@ int main() {
 	}
 
 
-
 	glfwMakeContextCurrent(window);
 	glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_FALSE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -97,13 +116,27 @@ int main() {
 	glGenBuffers(1, &ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
 	
+	struct WorldObject {
+		float radius;
+		glm::vec3 pos;
+		glm::vec3 vel;
+		glm::vec3 acc;
+	};
 
 	// SSBO 2
-	GLfloat data[] = { 0.0f, 1.0f, 0.0f };
+	WorldObject world[100];
+
+	for(int i = 0; i < 100; i++)
+	{
+		world[i].pos = toGlm(randomVector(1.0));
+		world[i].pos = toGlm(randomVector(1.0));
+		world[i].pos = toGlm(randomVector(1.0));
+	}
+
 	GLuint ssbo2 = 0;
 	glGenBuffers(1, &ssbo2);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo2);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(GLfloat) * 3, &data, GL_DYNAMIC_COPY);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(WorldObject) * 100, &world, GL_DYNAMIC_COPY);
 
 
 	// VAO
@@ -140,24 +173,22 @@ int main() {
 	// unbind the buffer 
 
 
-
-
-	const int windowSize = 20;
+	const int windowSize = 20; 
 	uint64_t frameTimes[windowSize];
 	uint8_t index = 0;
-	do {
+	do { 
 		frameTimes[index] = currentTimeNanos();
 		uint8_t prevIndex = index - 1 < 0 ? windowSize - 1 : index - 1;
 		double dt = (frameTimes[index] - frameTimes[prevIndex]) / (double)windowSize;
 		if (index == 0) {
-			printf("Average frame time millis: %.4f\n", dt / 1e6);
+			printf("Average frame time millis: %.4f\n", dt / 1e6); 
 		}
 		index = (index + 1) % windowSize;
 		glfwPollEvents();
-
+		
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  
+		
 		glUseProgram(compute_handle);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssbo);
 
@@ -168,43 +199,54 @@ int main() {
 		int n = 0;
 		memcpy(p, &n, sizeof(GLfloat)*3);
 		glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-
-		glDispatchCompute(1000000, 1, 1); 
+		 
+		glDispatchCompute(10, 1, 1); 
 		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
-	
-		GLuint *Counter;
+		
+		GLuint *Counter;  
 		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, counterBuffer);
 		glInvalidateBufferData(GL_ATOMIC_COUNTER_BUFFER);
 		glClearBufferData(GL_ATOMIC_COUNTER_BARRIER_BIT, GL_UNSIGNED_INT, GL_UNSIGNED_INT, 0, 0);
-
+		
 		shaders.bind();
 		GLint Resolution = glGetUniformLocation(shaders.id(), "Resolution");
 		int w, h;
-		glfwGetWindowSize(window, &w, &h);
-		glUniform2f(Resolution,(float)w,(float)h);
-
+		glfwGetWindowSize(window, &w, &h);    
+		glUniform2f(Resolution,(float)w,(float)h); 
+		float aspectRatio = w / h;  
+		
+		glm::vec3 ray00 = glm::normalize(view * glm::vec4(-aspectRatio, -1, 1.75, 0));
+		glm::vec3 ray10 = glm::normalize(view * glm::vec4(aspectRatio, -1, 1.75, 0));
+		glm::vec3 ray01 = glm::normalize(view * glm::vec4(-aspectRatio, 1, 1.75, 0));
+		glm::vec3 ray11 = glm::normalize(view * glm::vec4(aspectRatio, 1, 1.75, 0));
+		
+		glUniform3f(glGetUniformLocation(shaders.id(), "ray00"), ray00.x, ray00.y, ray00.z);
+		glUniform3f(glGetUniformLocation(shaders.id(), "ray01"), ray01.x, ray01.y, ray01.z);
+		glUniform3f(glGetUniformLocation(shaders.id(), "ray10"), ray10.x, ray10.y, ray10.z); 
+		glUniform3f(glGetUniformLocation(shaders.id(), "ray11"), ray11.x, ray11.y, ray11.z);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssbo);
-
+		
 		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);     
 		glVertexAttribPointer(
 			0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-			3,                  // size
-			GL_FLOAT,           // type
-			GL_FALSE,           // normalized?
-			0,                  // stride
-			(void*)0            // array buffer offset
-		);
-		// Draw the triangle !
-		glDrawArrays(GL_QUADS, 0, 4);
+			3,                  // size 
+			GL_FLOAT,           // type 
+			GL_FALSE,           // normalized?   
+			0,                  // stride 
+			(void*)0            // array buffer offset  
+		); 
 
+		// Draw the triangle !  
+		glDrawArrays(GL_QUADS, 0, 4); 
+		
 
 		glDisableVertexAttribArray(0);
 
 
-
+		
 		glfwSwapBuffers(window);
-	} while (!glfwGetKey(window, GLFW_KEY_ESCAPE) && !glfwWindowShouldClose(window));
+	} while (!glfwGetKey(window, GLFW_KEY_ESCAPE) && !glfwWindowShouldClose(window));  
 
 
 
