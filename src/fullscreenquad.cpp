@@ -129,8 +129,9 @@ int main() {
 	for(int i = 0; i < 100; i++)
 	{
 		world[i].pos = toGlm(randomVector(1.0));
-		world[i].pos = toGlm(randomVector(1.0));
-		world[i].pos = toGlm(randomVector(1.0));
+		world[i].acc = toGlm(randomVector(1.0));
+		world[i].vel = toGlm(randomVector(1.0));
+		world[i].radius = 0.5f;
 	}
 
 	GLuint ssbo2 = 0;
@@ -181,8 +182,8 @@ int main() {
 		uint8_t prevIndex = index - 1 < 0 ? windowSize - 1 : index - 1;
 		double dt = (frameTimes[index] - frameTimes[prevIndex]) / (double)windowSize;
 		if (index == 0) {
-			printf("Average frame time millis: %.4f\n", dt / 1e6); 
-		}
+			printf("Average frame time millis: %.4f\n", dt / 1e6);   
+		} 
 		index = (index + 1) % windowSize;
 		glfwPollEvents();
 		
@@ -192,38 +193,39 @@ int main() {
 		glUseProgram(compute_handle);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssbo);
 
-		// update ssbo2
+		// update ssbo2 
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo2);
-		GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
-		int n = 0;
-		memcpy(p, &n, sizeof(GLfloat)*3);
-		glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-		 
-		glDispatchCompute(10, 1, 1); 
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, ssbo2);
+		//glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo2);
+		//GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
+		//int n = 0; 
+		//memcpy(p, &n, sizeof(GLfloat)*3);
+		//glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+		   
+		glDispatchCompute(10000000, 1, 1);  
 		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
 		
 		GLuint *Counter;  
-		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, counterBuffer);
+		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, counterBuffer); 
 		glInvalidateBufferData(GL_ATOMIC_COUNTER_BUFFER);
 		glClearBufferData(GL_ATOMIC_COUNTER_BARRIER_BIT, GL_UNSIGNED_INT, GL_UNSIGNED_INT, 0, 0);
 		
-		shaders.bind();
+		shaders.bind(); 
 		GLint Resolution = glGetUniformLocation(shaders.id(), "Resolution");
-		int w, h;
-		glfwGetWindowSize(window, &w, &h);    
+		int w, h; 
+		glfwGetWindowSize(window, &w, &h);      
 		glUniform2f(Resolution,(float)w,(float)h); 
 		float aspectRatio = w / h;  
 		
 		glm::vec3 ray00 = glm::normalize(view * glm::vec4(-aspectRatio, -1, 1.75, 0));
 		glm::vec3 ray10 = glm::normalize(view * glm::vec4(aspectRatio, -1, 1.75, 0));
-		glm::vec3 ray01 = glm::normalize(view * glm::vec4(-aspectRatio, 1, 1.75, 0));
+		glm::vec3 ray01 = glm::normalize(view * glm::vec4(-aspectRatio, 1, 1.75, 0)); 
 		glm::vec3 ray11 = glm::normalize(view * glm::vec4(aspectRatio, 1, 1.75, 0));
 		
 		glUniform3f(glGetUniformLocation(shaders.id(), "ray00"), ray00.x, ray00.y, ray00.z);
 		glUniform3f(glGetUniformLocation(shaders.id(), "ray01"), ray01.x, ray01.y, ray01.z);
 		glUniform3f(glGetUniformLocation(shaders.id(), "ray10"), ray10.x, ray10.y, ray10.z); 
-		glUniform3f(glGetUniformLocation(shaders.id(), "ray11"), ray11.x, ray11.y, ray11.z);
+		glUniform3f(glGetUniformLocation(shaders.id(), "ray11"), ray11.x, ray11.y, ray11.z); 
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssbo);
 		
 		glEnableVertexAttribArray(0);

@@ -35,9 +35,12 @@ layout(std430, binding = 3) buffer d
 
 void main(){
 	float gameTime2 = gameTime*gameTime;
-	Sphere sphere = toSphere(world.objects[gl_LocalInvocationIndex], gameTime, gameTime2);
-	if (mod(gl_LocalInvocationIndex.x, 1) == 0) {
-	  uint counter = atomicCounterIncrement(counter);
-	  index.objects[counter] = sphere; // <- however this has to work in glsl to copy the sphere data into the index array
-	}
+	Sphere sphere = toSphere(world.objects[0], gameTime, gameTime2);
+		if (mod(gl_LocalInvocationIndex.x, 1) == 0) {
+		  uint counter = atomicCounterIncrement(counter);
+		  
+		  index.objects[0].center = sphere.center; // <- however this has to work in glsl to copy the sphere data into the index array
+		  index.objects[0].radius2 = sphere.radius2;
+		}
+	
 }

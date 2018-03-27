@@ -38,8 +38,11 @@ vec3 getRay() {
 void main() {  
  vec3 ray = getRay();
  for (int i=0; i<index.objects.length(); i++) {
-    if (intersectSphere(ray, index.objects[i])) 
-      outColor = vec4(1);
-    else outColor = vec4(0);
+      if (index.objects.length() > 0) {
+		outColor = vec4(1);
+	  } else {
+	outColor = vec4(0, 1, 0, 1);
+	}
+	outColor = vec4(0, 1, 0, 1);
   }
 }
