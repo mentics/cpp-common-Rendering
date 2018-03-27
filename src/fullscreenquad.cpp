@@ -22,10 +22,10 @@
 using namespace MenticsGame;
 
 struct WorldObject {
+	glm::vec4 pos;
+	glm::vec4 vel;
+	glm::vec4 acc;
 	float radius;
-	glm::vec3 pos;
-	glm::vec3 vel;
-	glm::vec3 acc;
 };
 
 static const GLfloat g_vertex_buffer_data[] = {
@@ -35,9 +35,11 @@ static const GLfloat g_vertex_buffer_data[] = {
 	-1.0f,  -1.0f, 0.0f,
 };
 
-void window_size_callback(GLFWwindow* window, int width, int height) {
-	glViewport(0, 0, width, height);
-} 
+//void window_size_callback(GLFWwindow* window, int width, int height) {
+//	glViewport(0, 0, width, height);
+//} 
+int viewportWidth;
+int viewportHeight;
 
 GLFWwindow* init() {
 	if (!glfwInit()) {
@@ -68,8 +70,10 @@ GLFWwindow* init() {
 		return 0;
 	}
 
-	glfwSetWindowSizeCallback(window, window_size_callback);
+	//glfwSetWindowSizeCallback(window, window_size_callback);
 	glViewport(0, 0, width, height);
+	viewportWidth = width;
+	viewportHeight = height;
 
 	return window;
 }
@@ -93,24 +97,18 @@ GLuint loadComputeShader()
 	return compute_handle;
 }
 
-glm::vec3 toGlm(vect3 v)
+glm::vec4 toGlm(vect3 v)
 {
-	return glm::vec3(v.x(), v.y(), v.z());
+	return glm::vec4(v.x(), v.y(), v.z(), 0);
 }
  
 
 int main() {
-	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
-	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-	glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
-	glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
-	glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),
+	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, -10.0f);
+	glm::mat4 view = glm::lookAt(cameraPos,
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 1.0f, 0.0f));
 
-	glm::vec3 eye = { 0, 0, 0 };
 	float gameTime = (double)currentTimeNanos() / 1000000000;
 	float dt = 1;
 
@@ -122,12 +120,13 @@ int main() {
 	const uint64_t numWorldObjects = 100;
 	WorldObject world[numWorldObjects];
 	for (int i = 0; i < numWorldObjects; i++) {
-		world[i].pos = toGlm(randomVector(1.0));
-		world[i].vel = toGlm(randomVector(1.0));
-		world[i].acc = toGlm(randomVector(1.0));
-		world[i].radius = 0.5f;
+		int v = i;// i - numWorldObjects / 2;
+		world[i].pos = toGlm(vect3(0, 0, 2)); // toGlm(vect3(v, v, v));
+		world[i].vel = toGlm(vect3(0, 0, 0));
+		world[i].acc = toGlm(vect3(0, 0, 0));
+		world[i].radius = 0.1f;
 	}
-
+	
 	GLuint worldId = 0;
 	glGenBuffers(1, &worldId);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, worldId);
@@ -163,10 +162,10 @@ int main() {
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-	int w, h;
-	glfwGetWindowSize(window, &w, &h);
+	//int w, h;
+	//glfwGetWindowSize(window, &w, &h);
 	GLint Resolution = glGetUniformLocation(shaders.id(), "Resolution");
-	float aspectRatio = w / h;
+	float aspectRatio = viewportWidth / (float)viewportHeight;
 
 	const int windowSize = 20; 
 	uint64_t frameTimes[windowSize];
@@ -208,7 +207,7 @@ int main() {
 		glm::vec3 ray01 = glm::normalize(view * glm::vec4(-aspectRatio, 1, 1.75, 0)); 
 		glm::vec3 ray11 = glm::normalize(view * glm::vec4(aspectRatio, 1, 1.75, 0));
 		
-		glUniform2f(Resolution, (float)w, (float)h);
+		glUniform2f(Resolution, (float)viewportWidth, (float)viewportHeight);
 		glUniform3f(glGetUniformLocation(shaders.id(), "ray00"), ray00.x, ray00.y, ray00.z);
 		glUniform3f(glGetUniformLocation(shaders.id(), "ray01"), ray01.x, ray01.y, ray01.z);
 		glUniform3f(glGetUniformLocation(shaders.id(), "ray10"), ray10.x, ray10.y, ray10.z); 

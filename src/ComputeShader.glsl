@@ -2,14 +2,14 @@
 layout (local_size_x = 1) in;
 
 struct WorldObject {
+  vec4 pos;
+  vec4 vel;
+  vec4 acc;
   float radius;
-  vec3 pos;
-  vec3 vel;
-  vec3 acc;
 };
 
 struct Sphere {  
-  vec3 center; 
+  vec4 center; 
   float radius2;
   float center2;
 };
@@ -29,7 +29,7 @@ layout(std430, binding = 4) buffer Index {
 } index;
 
 Sphere toSphere(WorldObject obj, float gameTime, float gameTime2) {
-	return Sphere(obj.pos + gameTime * obj.vel + gameTime2 * obj.acc - eye, obj.radius, obj.radius*obj.radius);
+	return Sphere(vec4(obj.pos.xyz + gameTime * obj.vel.xyz + gameTime2 * obj.acc.xyz - eye, 1), obj.radius, obj.radius*obj.radius);
 }
 
 void main(){
@@ -39,6 +39,6 @@ void main(){
 		uint counter = atomicCounterIncrement(counter);
 		index.objects[counter].center = sphere.center;
 		index.objects[counter].radius2 = sphere.radius2;
-		index.objects[counter].center2 = dot(sphere.center, sphere.center);
+		index.objects[counter].center2 = dot(sphere.center.xyz, sphere.center.xyz);
 	//}
 }

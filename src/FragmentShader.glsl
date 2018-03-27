@@ -1,7 +1,7 @@
 #version 430 core
 
 struct Sphere {
-	vec3 center;
+	vec4 center;
 	float radius2;
 	float center2;
 };
@@ -15,12 +15,12 @@ uniform vec3 ray01;
 uniform vec3 ray11;
 
 layout(std430, binding = 4) buffer Index {
-     Sphere objects[100];  
+     Sphere objects[100];
 } index;
 
 
 bool intersectSphere(vec3 dir, Sphere s) {
-	float dc = dot(dir, s.center);
+	float dc = dot(dir, s.center.xyz);
 	return (dc*dc) >= (s.center2 - s.radius2);
 }
 
@@ -31,7 +31,7 @@ vec3 getRay() {
  
 
 void main() {
-	vec3 ray = getRay();
+	vec3 ray = normalize(getRay());
 	for (int i=0; i<index.objects.length(); i++) {
 		if (intersectSphere(ray, index.objects[i])) {
 			outColor = vec4(0, 1, 0, 1);
