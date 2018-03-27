@@ -78,6 +78,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <LibraryPath>$(ProjectDir)\lib\imgui;$(LibraryPath)</LibraryPath>
+    <CustomBuildBeforeTargets>AllProjectOutputGroupsDependencies</CustomBuildBeforeTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -113,8 +114,15 @@
     <PostBuildEvent>
       <Command>copy "$(SolutionDir)lib\glfw\lib-mingw-w64\*.dll" "$(OutDir)"
 copy "$(SolutionDir)lib\glew\bin\Release\x64\*.dll" "$(OutDir)"
-copy "$(ProjectDir)src\*.glsl" "$(OutDir)"</Command>
+</Command>
     </PostBuildEvent>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <PreBuildEvent>
+      <Command>copy "$(ProjectDir)src\*.glsl" "$(OutDir)"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

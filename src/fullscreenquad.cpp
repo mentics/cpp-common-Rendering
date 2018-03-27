@@ -115,14 +115,21 @@ int main() {
 	GLFWwindow* window = init();
 	Shader shaders("VertexShader.glsl", "FragmentShader.glsl");
 	GLuint compute_handle = loadComputeShader();
+	float aspectRatio = viewportWidth / (float)viewportHeight;
+	
+	//// Compute Shader data ////
+
+	GLint cameraId = glGetUniformLocation(compute_handle, "cameraPos");
+	GLint gameTimeId = glGetUniformLocation(compute_handle, "gameTime");
+	GLint dtId = glGetUniformLocation(compute_handle, "dt");
 
 	// CPU to ComputeShader "World" buffer
 	const uint64_t numWorldObjects = 100;
 	WorldObject world[numWorldObjects];
 	for (int i = 0; i < numWorldObjects; i++) {
-		int v = i;// i - numWorldObjects / 2;
-		world[i].pos = toGlm(vect3(0, 0, 2)); // toGlm(vect3(v, v, v));
-		world[i].vel = toGlm(vect3(0, 0, 0));
+		int v = i - numWorldObjects / 2;
+		world[i].pos = toGlm(vect3(i, i, 0));
+		world[i].vel = toGlm(vect3(0, 0.1, 0));
 		world[i].acc = toGlm(vect3(0, 0, 0));
 		world[i].radius = 0.1f;
 	}
@@ -132,17 +139,6 @@ int main() {
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, worldId);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(WorldObject) * 100, &world, GL_DYNAMIC_COPY);
 
-	// ComputeShader to FragmentShader "Index" buffer
-	float indexData[1000];
-	//for (int i = 0; i < 1000; i++) {
-	//	indexData[i] = 0.1;
-	//}
-	GLuint indexId = 0;
-	glGenBuffers(1, &indexId);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, indexId);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * 1000, &indexData, GL_DYNAMIC_COPY);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
 	// Counter Buffer
 	GLuint counterBuffer;
 	glGenBuffers(1, &counterBuffer);
@@ -150,6 +146,24 @@ int main() {
 	glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint) * 1, NULL, GL_STATIC_DRAW);
 	glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 1, counterBuffer);
 	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0); // unbind the buffer 
+
+	//// Shared data ////
+
+	// ComputeShader to FragmentShader "Index" buffer
+	float indexData[1000]; // TODO: we shouldn't have to allocate it CPU side
+	GLuint indexId = 0;
+	glGenBuffers(1, &indexId);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, indexId);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * 1000, &indexData, GL_DYNAMIC_COPY);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+	//// Fragment Shader data ////
+
+	GLint Resolution = glGetUniformLocation(shaders.id(), "Resolution");
+	GLint ray00Id = glGetUniformLocation(shaders.id(), "ray00");
+	GLint ray01Id = glGetUniformLocation(shaders.id(), "ray01");
+	GLint ray10Id = glGetUniformLocation(shaders.id(), "ray10");
+	GLint ray11Id = glGetUniformLocation(shaders.id(), "ray11");
 
 	// VAO
 	GLuint vao;
@@ -162,18 +176,13 @@ int main() {
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-	//int w, h;
-	//glfwGetWindowSize(window, &w, &h);
-	GLint Resolution = glGetUniformLocation(shaders.id(), "Resolution");
-	float aspectRatio = viewportWidth / (float)viewportHeight;
-
 	const int windowSize = 20; 
 	uint64_t frameTimes[windowSize];
 	uint8_t index = 0;
-	do { 
+	do {
 		frameTimes[index] = currentTimeNanos();
 		uint8_t prevIndex = index - 1 < 0 ? windowSize - 1 : index - 1;
-		double dt = (frameTimes[index] - frameTimes[prevIndex]) / (double)windowSize;
+		float dt = (frameTimes[index] - frameTimes[prevIndex]) / (double)windowSize;
 		if (index == 0) {
 			printf("Average frame time millis: %.4f\n", dt / 1e6);   
 		} 
@@ -185,6 +194,9 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  
 		
 		glUseProgram(compute_handle);
+		glUniform3f(cameraId, cameraPos.x, cameraPos.y, cameraPos.z);
+		glUniform1f(gameTimeId, currentTimeNanos() / (float)1000000000);
+		glUniform1f(dtId, dt);
 		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, counterBuffer);
 		glInvalidateBufferData(GL_ATOMIC_COUNTER_BUFFER);
 		glClearBufferData(GL_ATOMIC_COUNTER_BARRIER_BIT, GL_UNSIGNED_INT, GL_UNSIGNED_INT, 0, 0);
@@ -196,7 +208,7 @@ int main() {
 		//int n = 0; 
 		//memcpy(p, &n, sizeof(GLfloat)*3);
 		//glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-		   
+
 		glDispatchCompute(numWorldObjects, 1, 1);
 		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 
@@ -208,10 +220,10 @@ int main() {
 		glm::vec3 ray11 = glm::normalize(view * glm::vec4(aspectRatio, 1, 1.75, 0));
 		
 		glUniform2f(Resolution, (float)viewportWidth, (float)viewportHeight);
-		glUniform3f(glGetUniformLocation(shaders.id(), "ray00"), ray00.x, ray00.y, ray00.z);
-		glUniform3f(glGetUniformLocation(shaders.id(), "ray01"), ray01.x, ray01.y, ray01.z);
-		glUniform3f(glGetUniformLocation(shaders.id(), "ray10"), ray10.x, ray10.y, ray10.z); 
-		glUniform3f(glGetUniformLocation(shaders.id(), "ray11"), ray11.x, ray11.y, ray11.z); 
+		glUniform3f(ray00Id, ray00.x, ray00.y, ray00.z);
+		glUniform3f(ray01Id, ray01.x, ray01.y, ray01.z);
+		glUniform3f(ray10Id, ray10.x, ray10.y, ray10.z); 
+		glUniform3f(ray11Id, ray11.x, ray11.y, ray11.z); 
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, indexId);
 
 		glEnableVertexAttribArray(0);

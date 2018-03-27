@@ -14,7 +14,7 @@ struct Sphere {
   float center2;
 };
 
-uniform vec3 eye;
+uniform vec3 cameraPos;
 uniform float gameTime;
 uniform float dt;
 
@@ -29,16 +29,20 @@ layout(std430, binding = 4) buffer Index {
 } index;
 
 Sphere toSphere(WorldObject obj, float gameTime, float gameTime2) {
-	return Sphere(vec4(obj.pos.xyz + gameTime * obj.vel.xyz + gameTime2 * obj.acc.xyz - eye, 1), obj.radius, obj.radius*obj.radius);
+	return Sphere(vec4(obj.pos.xyz + gameTime * obj.vel.xyz + gameTime2 * obj.acc.xyz - cameraPos, 1), obj.radius, obj.radius*obj.radius);
 }
 
 void main(){
 	float gameTime2 = gameTime*gameTime;
 	Sphere sphere = toSphere(world.objects[gl_LocalInvocationIndex.x], gameTime, gameTime2);
 	//if (mod(gl_LocalInvocationIndex.x, 1) == 0) {
-		uint counter = atomicCounterIncrement(counter);
+		//uint counter = atomicCounterIncrement(counter);
+		uint counter = gl_LocalInvocationIndex.x;
+		//index.objects[counter].center = vec4(0,0,10,1);
+		//index.objects[counter].radius2 = 0.01;
+		//index.objects[counter].center2 = 0;
 		index.objects[counter].center = sphere.center;
 		index.objects[counter].radius2 = sphere.radius2;
 		index.objects[counter].center2 = dot(sphere.center.xyz, sphere.center.xyz);
-	//}
+		//}
 }

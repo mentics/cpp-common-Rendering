@@ -28,11 +28,13 @@ vec3 getRay() {
 	vec2 scrPos = vec2(gl_FragCoord.x/Resolution.x, gl_FragCoord.y/Resolution.y);
 	return normalize(mix(mix(ray00, ray01, scrPos.y), mix(ray10, ray11, scrPos.y), scrPos.x));
 }
- 
+
 
 void main() {
 	vec3 ray = normalize(getRay());
-	for (int i=0; i<index.objects.length(); i++) {
+	//for (int i=0; i<index.objects.length(); i++) {
+	//for (int i = 0; i<100; i++) {
+	for (int i = 0; i<1; i++) {
 		if (intersectSphere(ray, index.objects[i])) {
 			outColor = vec4(0, 1, 0, 1);
 			break;
