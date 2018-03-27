@@ -4,6 +4,7 @@ struct Sphere {
 	vec4 center;
 	float radius2;
 	float center2;
+	vec2 ignore;
 };
 
 out vec4 outColor;
@@ -15,7 +16,7 @@ uniform vec3 ray01;
 uniform vec3 ray11;
 
 layout(std430, binding = 4) buffer Index {
-     Sphere objects[100];
+     Sphere objects[1000];
 } index;
 
 
@@ -33,8 +34,7 @@ vec3 getRay() {
 void main() {
 	vec3 ray = normalize(getRay());
 	//for (int i=0; i<index.objects.length(); i++) {
-	//for (int i = 0; i<100; i++) {
-	for (int i = 0; i<1; i++) {
+	for (int i = 0; i < 100; i++) {
 		if (intersectSphere(ray, index.objects[i])) {
 			outColor = vec4(0, 1, 0, 1);
 			break;

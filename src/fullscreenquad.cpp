@@ -26,6 +26,9 @@ struct WorldObject {
 	glm::vec4 vel;
 	glm::vec4 acc;
 	float radius;
+	float ignore1;
+	float ignore2;
+	float ignore3;
 };
 
 static const GLfloat g_vertex_buffer_data[] = {
@@ -109,9 +112,6 @@ int main() {
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 1.0f, 0.0f));
 
-	float gameTime = (double)currentTimeNanos() / 1000000000;
-	float dt = 1;
-
 	GLFWwindow* window = init();
 	Shader shaders("VertexShader.glsl", "FragmentShader.glsl");
 	GLuint compute_handle = loadComputeShader();
@@ -124,20 +124,26 @@ int main() {
 	GLint dtId = glGetUniformLocation(compute_handle, "dt");
 
 	// CPU to ComputeShader "World" buffer
-	const uint64_t numWorldObjects = 100;
+	const int dim = 10;
+	const int numWorldObjects = dim*dim*dim;
 	WorldObject world[numWorldObjects];
-	for (int i = 0; i < numWorldObjects; i++) {
-		int v = i - numWorldObjects / 2;
-		world[i].pos = toGlm(vect3(i, i, 0));
-		world[i].vel = toGlm(vect3(0, 0.1, 0));
-		world[i].acc = toGlm(vect3(0, 0, 0));
-		world[i].radius = 0.1f;
+	for (int i = -dim / 2; i < dim/2; i++) {
+		for (int j = -dim / 2; j < dim/2; j++) {
+			for (int k = -dim / 2; k < dim/2; k++) {
+				uint64_t ind = dim*dim*(i+dim/2) + dim*(j+dim/2) + k+dim/2;
+				world[ind].pos = toGlm(vect3((float)i, (float)j, (float)k + 2*dim));
+				//world[ind].pos = toGlm(vect3(0, 0, 0));
+				world[ind].vel = toGlm(vect3(0, 1, 0));
+				world[ind].acc = toGlm(vect3(0, 0, 0));
+				world[ind].radius = 0.1f;
+			}
+		}
 	}
 	
 	GLuint worldId = 0;
 	glGenBuffers(1, &worldId);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, worldId);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(WorldObject) * 100, &world, GL_DYNAMIC_COPY);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(WorldObject) * numWorldObjects, &world, GL_DYNAMIC_COPY);
 
 	// Counter Buffer
 	GLuint counterBuffer;
@@ -150,7 +156,7 @@ int main() {
 	//// Shared data ////
 
 	// ComputeShader to FragmentShader "Index" buffer
-	float indexData[1000]; // TODO: we shouldn't have to allocate it CPU side
+	float indexData[numWorldObjects]; // TODO: we shouldn't have to allocate it CPU side
 	GLuint indexId = 0;
 	glGenBuffers(1, &indexId);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, indexId);
@@ -179,8 +185,10 @@ int main() {
 	const int windowSize = 20; 
 	uint64_t frameTimes[windowSize];
 	uint8_t index = 0;
+	uint64_t startNanos = currentTimeNanos();
 	do {
-		frameTimes[index] = currentTimeNanos();
+		uint64_t nanos = currentTimeNanos();
+		frameTimes[index] = nanos;
 		uint8_t prevIndex = index - 1 < 0 ? windowSize - 1 : index - 1;
 		float dt = (frameTimes[index] - frameTimes[prevIndex]) / (double)windowSize;
 		if (index == 0) {
@@ -195,7 +203,8 @@ int main() {
 		
 		glUseProgram(compute_handle);
 		glUniform3f(cameraId, cameraPos.x, cameraPos.y, cameraPos.z);
-		glUniform1f(gameTimeId, currentTimeNanos() / (float)1000000000);
+		float gameTime = (float)(nanos - startNanos) / 1000000000.0;
+		glUniform1f(gameTimeId, gameTime);
 		glUniform1f(dtId, dt);
 		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, counterBuffer);
 		glInvalidateBufferData(GL_ATOMIC_COUNTER_BUFFER);
@@ -208,7 +217,7 @@ int main() {
 		//int n = 0; 
 		//memcpy(p, &n, sizeof(GLfloat)*3);
 		//glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-
+		
 		glDispatchCompute(numWorldObjects, 1, 1);
 		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 
