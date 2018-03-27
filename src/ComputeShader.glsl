@@ -1,10 +1,5 @@
 #version 430
 layout (local_size_x = 1) in;
-layout (binding = 1, offset = 0) uniform atomic_uint counter;
-
-uniform vec3 eye;
-uniform float gameTime;
-uniform float dt;
 
 struct WorldObject {
   float radius;
@@ -19,28 +14,31 @@ struct Sphere {
   float center2;
 };
 
-Sphere toSphere(WorldObject obj, float gameTime, float gameTime2) {
-  return Sphere(obj.pos + gameTime * obj.vel + gameTime2 * obj.acc - eye, obj.radius, obj.radius*obj.radius);
-}
+uniform vec3 eye;
+uniform float gameTime;
+uniform float dt;
 
-layout(std430, binding = 4) buffer c
-{
+layout(binding = 1, offset = 0) uniform atomic_uint counter;
+
+layout(std430, binding = 3) buffer World {
      WorldObject objects[];
-}world;
+} world;
 
-layout(std430, binding = 3) buffer d
-{
+layout(std430, binding = 4) buffer Index {
      Sphere objects[];
-}index;
+} index;
+
+Sphere toSphere(WorldObject obj, float gameTime, float gameTime2) {
+	return Sphere(obj.pos + gameTime * obj.vel + gameTime2 * obj.acc - eye, obj.radius, obj.radius*obj.radius);
+}
 
 void main(){
 	float gameTime2 = gameTime*gameTime;
-	Sphere sphere = toSphere(world.objects[0], gameTime, gameTime2);
-		if (mod(gl_LocalInvocationIndex.x, 1) == 0) {
-		  uint counter = atomicCounterIncrement(counter);
-		  
-		  index.objects[0].center = sphere.center; // <- however this has to work in glsl to copy the sphere data into the index array
-		  index.objects[0].radius2 = sphere.radius2;
-		}
-	
+	Sphere sphere = toSphere(world.objects[gl_LocalInvocationIndex.x], gameTime, gameTime2);
+	if (mod(gl_LocalInvocationIndex.x, 1) == 0) {
+		uint counter = atomicCounterIncrement(counter);
+		index.objects[counter].center = sphere.center;
+		index.objects[counter].radius2 = sphere.radius2;
+		index.objects[counter].center2 = dot(sphere.center, sphere.center);
+	}
 }
