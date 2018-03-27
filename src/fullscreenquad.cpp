@@ -18,12 +18,12 @@
 #include "Shader.h"
 #include "glm\gtx\transform.hpp"
 #include "World.h" 
-
+  
 using namespace MenticsGame;
 
 void window_size_callback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
-}
+} 
 
 
 GLuint compute_handle;
@@ -234,7 +234,7 @@ int main() {
 			0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
 			3,                  // size 
 			GL_FLOAT,           // type 
-			GL_FALSE,           // normalized?   
+			GL_FALSE,           // normalized? 
 			0,                  // stride 
 			(void*)0            // array buffer offset  
 		); 
