@@ -134,9 +134,15 @@ int main() {
 	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(WorldObject) * 100, &world, GL_DYNAMIC_COPY);
 
 	// ComputeShader to FragmentShader "Index" buffer
+	float indexData[1000];
+	//for (int i = 0; i < 1000; i++) {
+	//	indexData[i] = 0.1;
+	//}
 	GLuint indexId = 0;
 	glGenBuffers(1, &indexId);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, indexId);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * 1000, &indexData, GL_DYNAMIC_COPY);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 	// Counter Buffer
 	GLuint counterBuffer;
@@ -155,6 +161,7 @@ int main() {
 	glGenBuffers(1, &vertexbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 	int w, h;
 	glfwGetWindowSize(window, &w, &h);
@@ -177,7 +184,7 @@ int main() {
 		
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  
-
+		
 		glUseProgram(compute_handle);
 		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, counterBuffer);
 		glInvalidateBufferData(GL_ATOMIC_COUNTER_BUFFER);

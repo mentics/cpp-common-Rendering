@@ -15,7 +15,7 @@ uniform vec3 ray01;
 uniform vec3 ray11;
 
 layout(std430, binding = 4) buffer Index {
-     Sphere objects[];  
+     Sphere objects[100];  
 } index;
 
 
@@ -31,17 +31,17 @@ vec3 getRay() {
  
 
 void main() {
-	//vec3 ray = getRay();
-	//for (int i=0; i<index.objects.length(); i++) {
-	//	if (index.objects.length() > 0) {
-	//		outColor = vec4(1);
-	//	} else {
-	//		outColor = vec4(0, 1, 0, 1);
-	//	}
-	//}
-	if (index.objects.length() > 0) {
-		outColor = vec4(0, 1, 0, 1);
-	} else {
-		outColor = vec4(1, 0, 0, 1);
+	vec3 ray = getRay();
+	for (int i=0; i<index.objects.length(); i++) {
+		if (intersectSphere(ray, index.objects[i])) {
+			outColor = vec4(0, 1, 0, 1);
+			break;
+		}
 	}
+	//if (index.objects[0].center.x != 0) {
+	//	outColor = vec4(0, 1, 0, 1);
+	//} else {
+	//	outColor = vec4(1, 0, 0, 1);
+	//}
+	//outColor = vec4(index.objects[int(mod(gl_FragCoord.x, 100))].center.x, 0, 0, 1.0);
 }
