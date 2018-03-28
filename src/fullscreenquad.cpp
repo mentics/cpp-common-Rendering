@@ -19,6 +19,8 @@
 #include "glm\gtx\transform.hpp"
 #include "World.h" 
 #include "Camera.h"
+#include "imgui.h"
+#include "imgui_impl_glfw_gl3.h"
   
 using namespace MenticsGame;
 
@@ -144,10 +146,18 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
 	cam.ProcessMouseMovement(xoffset, yoffset);
 }
 
+struct Sphere {
+	glm::vec4 center;
+	float radius2;
+	float center2;
+	glm::vec2 ignore;
+};
+
 
 int main() {
 	
 	GLFWwindow* window = init();
+
 	Shader shaders("VertexShader.glsl", "FragmentShader.glsl");
 	GLuint compute_handle = loadComputeShader();
 	float aspectRatio = viewportWidth / (float)viewportHeight;
@@ -221,11 +231,19 @@ int main() {
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 	
-	const int windowSize = 20; 
+	const int windowSize = 20;  
 	uint64_t frameTimes[windowSize];
 	uint8_t index = 0;
 	uint64_t startNanos = currentTimeNanos();
 
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, worldId);
+
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	ImGui_ImplGlfwGL3_Init(window, true);
+	  
+	//ImGui_ImplGlfwGL3_Init(debugWindow, true);
+	GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
 	do {
 		uint64_t nanos = currentTimeNanos();
 		frameTimes[index] = nanos;
@@ -238,10 +256,17 @@ int main() {
 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  
+		ImGui_ImplGlfwGL3_NewFrame();
 		
 		glUseProgram(compute_handle);
 		glUniform3f(cameraId, cam.Position.x, cam.Position.y, cam.Position.z);
 		float gameTime = (float)(nanos - startNanos) / 1000000000.0;
+
+		ImGui::Begin("test");
+		ImGui::Text("Game Time : %d ", gameTime);
+		ImGui::Text(" CameraPos % f, %f, %f", gameTime, cam.Position.x, cam.Position.y, cam.Position.z);
+		ImGui::End();
+
 		glUniform1f(gameTimeId, gameTime);
 		glUniform1f(dtId, dt);
 		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, counterBuffer);
@@ -259,7 +284,13 @@ int main() {
 		glDispatchCompute(numWorldObjects, 1, 1);
 		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 
+		
+		int data = 0;
+		memcpy(p, &data, sizeof(int)); 
+		
+
 		shaders.bind();
+		
 		
 		glm::vec3 ray00 = glm::normalize(cam.GetViewMatrix() * glm::vec4(-aspectRatio, -1, 1.75, 0));
 		glm::vec3 ray10 = glm::normalize(cam.GetViewMatrix() * glm::vec4(aspectRatio, -1, 1.75, 0));
@@ -272,6 +303,13 @@ int main() {
 		glUniform3f(ray10Id, ray10.x, ray10.y, ray10.z); 
 		glUniform3f(ray11Id, ray11.x, ray11.y, ray11.z); 
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, indexId);
+
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, indexId);
+		Sphere *ptrToIndexData = (Sphere*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY); 
+		std::cout << ptrToIndexData[0].center.x;   
+		glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
 
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);     
@@ -286,7 +324,8 @@ int main() {
 
 		// Draw the triangle
 		glDrawArrays(GL_QUADS, 0, 4); 
-
+		ImGui::Render();
+		ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
 		
 		glfwPollEvents();
 		glDisableVertexAttribArray(0);
