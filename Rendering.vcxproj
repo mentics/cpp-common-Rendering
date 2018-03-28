@@ -163,6 +163,7 @@ copy "$(SolutionDir)lib\glew\bin\Release\x64\*.dll" "$(OutDir)"
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\imconfig.h" />
     <ClInclude Include="include\imgui.h" />
     <ClInclude Include="include\imgui_impl_glfw_gl3.h" />
@@ -206,7 +207,11 @@ copy "$(SolutionDir)lib\glew\bin\Release\x64\*.dll" "$(OutDir)"
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\ComputeShader.glsl" />
-    <Text Include="src\FragmentShader.glsl" />
+    <Text Include="src\FragmentShader.glsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </DeploymentContent>
+    </Text>
     <Text Include="src\VertexShader.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

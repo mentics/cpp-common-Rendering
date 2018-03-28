@@ -39,11 +39,11 @@ Sphere toSphere(WorldObject obj, float gameTime, float gameTime2) {
 
 void main(){
 	float gameTime2 = gameTime*gameTime;
-	Sphere sphere = toSphere(world.objects[gl_GlobalInvocationID.x], gameTime, gameTime2);
-	//if (mod(gl_LocalInvocationIndex.x, 1) == 0) {
+	Sphere sphere = toSphere(world.objects[gl_GlobalInvocationID.x], gameTime, gameTime2);  
+	//if (mod(gl_LocalInvocationIndex.x, 1) == 0) { 
 		//uint counter = atomicCounterIncrement(counter);
-		uint counter = gl_GlobalInvocationID.x;
-		//index.objects[counter].center = vec4(counter,0,10,1);
+		uint counter = gl_GlobalInvocationID.x;   
+		//index.objects[counter].center = vec4(counter,0,10,1); 
 		//index.objects[counter].radius2 = 0.01;
 		//index.objects[counter].center2 = 0;
 		index.objects[counter].center = sphere.center;

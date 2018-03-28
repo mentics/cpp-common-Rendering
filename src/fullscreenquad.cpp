@@ -18,6 +18,7 @@
 #include "Shader.h"
 #include "glm\gtx\transform.hpp"
 #include "World.h" 
+#include "Camera.h"
   
 using namespace MenticsGame;
 
@@ -43,6 +44,8 @@ static const GLfloat g_vertex_buffer_data[] = {
 //} 
 int viewportWidth;
 int viewportHeight;
+
+
 
 GLFWwindow* init() {
 	if (!glfwInit()) {
@@ -104,14 +107,46 @@ glm::vec4 toGlm(vect3 v)
 {
 	return glm::vec4(v.x(), v.y(), v.z(), 0);
 }
- 
+  
+
+
+Camera cam;
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		cam.ProcessKeyboard(FORWARD, 0.1f);
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		cam.ProcessKeyboard(BACKWARD, 0.1f);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		cam.ProcessKeyboard(LEFT, 0.1f);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		cam.ProcessKeyboard(RIGHT, 0.1f);
+}
+
+double lastX;
+double lastY;
+bool firstMouse = true;
+static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	if (firstMouse)
+	{
+		lastX = xpos;
+		lastY = ypos;
+		firstMouse = false;
+	}
+
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos; 
+
+	lastX = xpos;
+	lastY = ypos;
+
+	cam.ProcessMouseMovement(xoffset, yoffset);
+}
+
 
 int main() {
-	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, -10.0f);
-	glm::mat4 view = glm::lookAt(cameraPos,
-		glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 1.0f, 0.0f));
-
+	
 	GLFWwindow* window = init();
 	Shader shaders("VertexShader.glsl", "FragmentShader.glsl");
 	GLuint compute_handle = loadComputeShader();
@@ -133,13 +168,16 @@ int main() {
 				uint64_t ind = dim*dim*(i+dim/2) + dim*(j+dim/2) + k+dim/2;
 				world[ind].pos = toGlm(vect3((float)i, (float)j, (float)k + 2*dim));
 				//world[ind].pos = toGlm(vect3(0, 0, 0));
-				world[ind].vel = toGlm(vect3(0, 1, 0));
+				world[ind].vel = toGlm(vect3(0, 1, 0)); 
 				world[ind].acc = toGlm(vect3(0, 0, 0));
 				world[ind].radius = 0.1f;
 			}
 		}
 	}
 	
+	glfwSetKeyCallback(window, key_callback); 
+	glfwSetCursorPosCallback(window, cursor_position_callback);
+
 	GLuint worldId = 0;
 	glGenBuffers(1, &worldId);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, worldId);
@@ -182,10 +220,12 @@ int main() {
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
+	
 	const int windowSize = 20; 
 	uint64_t frameTimes[windowSize];
 	uint8_t index = 0;
 	uint64_t startNanos = currentTimeNanos();
+
 	do {
 		uint64_t nanos = currentTimeNanos();
 		frameTimes[index] = nanos;
@@ -196,13 +236,11 @@ int main() {
 		} 
 		index = (index + 1) % windowSize;
 
-		glfwPollEvents();
-		
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  
 		
 		glUseProgram(compute_handle);
-		glUniform3f(cameraId, cameraPos.x, cameraPos.y, cameraPos.z);
+		glUniform3f(cameraId, cam.Position.x, cam.Position.y, cam.Position.z);
 		float gameTime = (float)(nanos - startNanos) / 1000000000.0;
 		glUniform1f(gameTimeId, gameTime);
 		glUniform1f(dtId, dt);
@@ -223,10 +261,10 @@ int main() {
 
 		shaders.bind();
 		
-		glm::vec3 ray00 = glm::normalize(view * glm::vec4(-aspectRatio, -1, 1.75, 0));
-		glm::vec3 ray10 = glm::normalize(view * glm::vec4(aspectRatio, -1, 1.75, 0));
-		glm::vec3 ray01 = glm::normalize(view * glm::vec4(-aspectRatio, 1, 1.75, 0)); 
-		glm::vec3 ray11 = glm::normalize(view * glm::vec4(aspectRatio, 1, 1.75, 0));
+		glm::vec3 ray00 = glm::normalize(cam.GetViewMatrix() * glm::vec4(-aspectRatio, -1, 1.75, 0));
+		glm::vec3 ray10 = glm::normalize(cam.GetViewMatrix() * glm::vec4(aspectRatio, -1, 1.75, 0));
+		glm::vec3 ray01 = glm::normalize(cam.GetViewMatrix() * glm::vec4(-aspectRatio, 1, 1.75, 0));
+		glm::vec3 ray11 = glm::normalize(cam.GetViewMatrix() * glm::vec4(aspectRatio, 1, 1.75, 0));
 		
 		glUniform2f(Resolution, (float)viewportWidth, (float)viewportHeight);
 		glUniform3f(ray00Id, ray00.x, ray00.y, ray00.z);
@@ -241,13 +279,16 @@ int main() {
 			0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
 			3,                  // size 
 			GL_FLOAT,           // type 
-			GL_FALSE,           // normalized? 
+			GL_FALSE,           // normalized?  
 			0,                  // stride 
 			(void*)0            // array buffer offset  
 		); 
 
 		// Draw the triangle
 		glDrawArrays(GL_QUADS, 0, 4); 
+
+		
+		glfwPollEvents();
 		glDisableVertexAttribArray(0);
 		glfwSwapBuffers(window);
 	} while (!glfwGetKey(window, GLFW_KEY_ESCAPE) && !glfwWindowShouldClose(window));  
