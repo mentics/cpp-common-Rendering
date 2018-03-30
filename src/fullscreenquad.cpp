@@ -239,7 +239,7 @@ int main() {
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, worldId);
 
 	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	
 	ImGui_ImplGlfwGL3_Init(window, true);
 	  
 	//ImGui_ImplGlfwGL3_Init(debugWindow, true);
