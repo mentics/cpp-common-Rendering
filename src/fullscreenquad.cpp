@@ -188,6 +188,7 @@ int main() {
 	glGenBuffers(1, &worldId);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, worldId);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(WorldObject) * numWorldObjects, &world, GL_DYNAMIC_COPY);
+	std::cout << "World Object 211: " << world[211].pos.x << std::endl;
 
 	// Counter Buffer
 	GLuint counterBuffer;
@@ -306,7 +307,13 @@ int main() {
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, indexId);
 		Sphere *ptrToIndexData = (Sphere*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY); 
-		std::cout << ptrToIndexData[0].center.x;
+		int testItem = 1;
+		std::cout << '[' << ptrToIndexData[testItem].center.x
+			<< ',' << ptrToIndexData[testItem].center.y
+			<< ',' << ptrToIndexData[testItem].center.z
+			<< ',' << ptrToIndexData[testItem].center2
+			<< ',' << ptrToIndexData[testItem].radius2
+			<< ']';
 		glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
 
