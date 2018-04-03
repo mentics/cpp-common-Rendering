@@ -201,11 +201,11 @@ int main() {
 	//// Shared data ////
 
 	// ComputeShader to FragmentShader "Index" buffer
-	float indexData[numWorldObjects]; // TODO: we shouldn't have to allocate it CPU side
+	Sphere indexData[numWorldObjects]; // TODO: we shouldn't have to allocate it CPU side
 	GLuint indexId = 0;
 	glGenBuffers(1, &indexId);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, indexId);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * 1000, &indexData, GL_DYNAMIC_COPY);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Sphere) * 1000, &indexData, GL_DYNAMIC_COPY);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 	//// Fragment Shader data ////
@@ -307,7 +307,7 @@ int main() {
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, indexId);
 		Sphere *ptrToIndexData = (Sphere*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY); 
-		int testItem = 1;
+		int testItem = 500;
 		std::cout << '[' << ptrToIndexData[testItem].center.x
 			<< ',' << ptrToIndexData[testItem].center.y
 			<< ',' << ptrToIndexData[testItem].center.z
