@@ -111,8 +111,7 @@ glm::vec4 toGlm(vect3 v)
 }
   
 
-
-Camera cam;
+Camera cam(glm::vec3(0,0,-10));
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -185,13 +184,11 @@ int main() {
 		}
 	}
 	
-	glfwSetKeyCallback(window, key_callback); 
-	glfwSetCursorPosCallback(window, cursor_position_callback);
-
 	GLuint worldId = 0;
 	glGenBuffers(1, &worldId);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, worldId);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(WorldObject) * numWorldObjects, &world, GL_DYNAMIC_COPY);
+	std::cout << "World Object 211: " << world[211].pos.x << std::endl;
 
 	// Counter Buffer
 	GLuint counterBuffer;
@@ -223,7 +220,7 @@ int main() {
 	GLuint vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
-
+	
 	GLuint vertexbuffer;
 	glGenBuffers(1, &vertexbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
@@ -239,9 +236,12 @@ int main() {
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, worldId);
 
 	ImGui::CreateContext();
-	
+
 	ImGui_ImplGlfwGL3_Init(window, true);
-	  
+
+	glfwSetKeyCallback(window, key_callback);
+	glfwSetCursorPosCallback(window, cursor_position_callback);
+
 	//ImGui_ImplGlfwGL3_Init(debugWindow, true);
 	GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
 	do {
@@ -263,8 +263,8 @@ int main() {
 		float gameTime = (float)(nanos - startNanos) / 1000000000.0;
 
 		ImGui::Begin("test");
-		ImGui::Text("Game Time : %d ", gameTime);
-		ImGui::Text(" CameraPos % f, %f, %f", gameTime, cam.Position.x, cam.Position.y, cam.Position.z);
+		ImGui::Text("Game Time: %.2f", gameTime);
+		ImGui::Text("CameraPos %.2f, %.2f, %.2f", cam.Position.x, cam.Position.y, cam.Position.z);
 		ImGui::End();
 
 		glUniform1f(gameTimeId, gameTime);
@@ -307,7 +307,13 @@ int main() {
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, indexId);
 		Sphere *ptrToIndexData = (Sphere*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY); 
-		std::cout << ptrToIndexData[0].center.x;   
+		int testItem = 1;
+		std::cout << '[' << ptrToIndexData[testItem].center.x
+			<< ',' << ptrToIndexData[testItem].center.y
+			<< ',' << ptrToIndexData[testItem].center.z
+			<< ',' << ptrToIndexData[testItem].center2
+			<< ',' << ptrToIndexData[testItem].radius2
+			<< ']';
 		glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
 

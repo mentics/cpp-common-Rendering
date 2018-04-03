@@ -34,12 +34,12 @@ vec3 getRay() {
 void main() {
 	vec3 ray = normalize(getRay());
 	//for (int i=0; i<index.objects.length(); i++) {
-	for (int i = 0; i < 100; i++) {  
+	for (int i = 211; i < 212; i++) {
 		if (intersectSphere(ray, index.objects[i])) {
-			outColor = vec4(1, 0, 0, 1);
+			outColor = vec4(0, 1, 0, 1);
 			break;
 		}
-		else outColor = vec4(0,1,0,1);
+		else outColor = vec4(0.1,0.1,0.1,1);
 	}
 	//if (index.objects[0].center.x != 0) {
 	//	outColor = vec4(0, 1, 0, 1);
