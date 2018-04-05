@@ -175,26 +175,11 @@ int main() {
 	const int dim = 10;
 	const int numWorldObjects = dim * dim*dim;
 	WorldObject world[numWorldObjects];
-	for (int i = -dim / 2; i < dim / 2; i++) {
-		for (int j = -dim / 2; j < dim / 2; j++) {
-			for (int k = -dim / 2; k < dim / 2; k++) {
-				uint64_t ind = dim * dim*(i + dim / 2) + dim * (j + dim / 2) + k + dim / 2;
-
-				BasicTrajectory tr(0, 100, vect3((float)i, (float)j, (float)k + 2 * dim),
-					vect3(0, 1, 0),
-					vect3(0, 0, 0));
-
-				w.createQuip(0, nn::nn_make_unique<BasicTrajectory>(tr));
-
-				//world[ind].pos = toGlm(vect3((float)i, (float)j, (float)k + 2 * dim));
-				//world[ind].pos = toGlm(vect3(0, 0, 0));
-				//world[ind].vel = toGlm(vect3(0, 1, 0));
-				//world[ind].acc = toGlm(vect3(0, 0, 0));
-			}
-		}
+	for (int i = 0; i < numWorldObjects; i++) {
+		w.createQuip(0, makeTrajRandom(10, 2, 1));
 	}
 
-	std::this_thread::sleep_for(chrono::microseconds(2000));
+	std::this_thread::sleep_for(chrono::milliseconds(2000));
 
 	AgentPosVelAcc a_data[numWorldObjects];
 	w.allAgentsData(a_data);
