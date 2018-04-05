@@ -1,28 +1,21 @@
 #version 430
 layout (local_size_x = 1) in;
 
-//struct WorldObject {
-//  vec4 pos;
-//  vec4 vel;
-//  vec4 acc;
-//  float radius;
-//  float ignore1;
-//  float ignore2;
-//  float ignore3;
-//};
+struct WorldObject {
+  vec4 pos;
+  vec4 vel;
+  vec4 acc;
+  float radius;
+  float ignore1;
+  float ignore2;
+  float ignore3;
+};
 
 struct Sphere {  
   vec4 center; 
   float radius2;
   float center2;
   vec2 ignore;
-};
-
-
-struct WorldObject {
-	vect3 pos;
-	vect3 vel;
-	vect3 acc;
 };
 
 uniform vec3 cameraPos;
@@ -39,22 +32,15 @@ layout(std430, binding = 4) buffer Index {
      Sphere objects[1000];
 } index;
 
-Sphere toSphere(WorldObject obj, float gameTime, float gameTime2) {
+void toSphere(WorldObject obj, float gameTime, float gameTime2, Sphere s) {
 	vec3 c = obj.pos.xyz + gameTime * obj.vel.xyz + gameTime2 * obj.acc.xyz - cameraPos;
-	return Sphere(vec4(c, 1), obj.radius*obj.radius, dot(c, c), vec2(-1,-1));
+	s.center = vec4(c, 1);
+	s.radius2 = obj.radius*obj.radius;
+	s.center2 = dot(c, c);
 }
 
 void main(){
 	float gameTime2 = gameTime*gameTime;
-	Sphere sphere = toSphere(world.objects[gl_GlobalInvocationID.x], gameTime, gameTime2);  
-	//if (mod(gl_LocalInvocationIndex.x, 1) == 0) { 
-		//uint counter = atomicCounterIncrement(counter);
-		uint counter = gl_GlobalInvocationID.x;   
-		//index.objects[counter].center = vec4(counter,0,10,1); 
-		//index.objects[counter].radius2 = 0.01;
-		//index.objects[counter].center2 = 0;
-		index.objects[counter].center = sphere.center;
-		index.objects[counter].radius2 = sphere.radius2;
-		index.objects[counter].center2 = sphere.center2;
-	//}
+	uint counter = gl_GlobalInvocationID.x;
+	toSphere(world.objects[gl_GlobalInvocationID.x], gameTime, gameTime2, index.objects[counter]);
 }

@@ -171,9 +171,6 @@ int main() {
 
 	World w(1);
 
-	
-	
-
 	// CPU to ComputeShader "World" buffer
 	const int dim = 10;
 	const int numWorldObjects = dim * dim*dim;
@@ -196,7 +193,9 @@ int main() {
 			}
 		}
 	}
-	
+
+	std::this_thread::sleep_for(chrono::microseconds(2000));
+
 	AgentPosVelAcc a_data[numWorldObjects];
 	w.allAgentsData(a_data);
 	for (int i = 0; i < numWorldObjects; i++) {
@@ -219,9 +218,7 @@ int main() {
 	glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 1, counterBuffer);
 	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0); // unbind the buffer 
 
-											   //// Shared data ////
-
-											   // ComputeShader to FragmentShader "Index" buffer
+	// ComputeShader to FragmentShader "Index" buffer
 	Sphere indexData[numWorldObjects]; // TODO: we shouldn't have to allocate it CPU side
 	GLuint indexId = 0;
 	glGenBuffers(1, &indexId);
@@ -230,7 +227,6 @@ int main() {
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 	//// Fragment Shader data ////
-
 	GLint Resolution = glGetUniformLocation(shaders.id(), "Resolution");
 	GLint ray00Id = glGetUniformLocation(shaders.id(), "ray00");
 	GLint ray01Id = glGetUniformLocation(shaders.id(), "ray01");
@@ -263,8 +259,6 @@ int main() {
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetCursorPosCallback(window, cursor_position_callback);
 
-	//ImGui_ImplGlfwGL3_Init(debugWindow, true);
-	GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
 	do {
 		uint64_t nanos = currentTimeNanos();
 		frameTimes[index] = nanos;
@@ -278,7 +272,7 @@ int main() {
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		ImGui_ImplGlfwGL3_NewFrame();
-
+		
 		glUseProgram(compute_handle);
 		glUniform3f(cameraId, cam.Position.x, cam.Position.y, cam.Position.z);
 		float gameTime = (float)(nanos - startNanos) / 1000000000.0;
@@ -296,22 +290,10 @@ int main() {
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, worldId);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, indexId);
 
-		//glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo2);
-		//GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
-		//int n = 0; 
-		//memcpy(p, &n, sizeof(GLfloat)*3);
-		//glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-
 		glDispatchCompute(numWorldObjects, 1, 1);
 		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 
-
-		int data = 0;
-		memcpy(p, &data, sizeof(int));
-
-
 		shaders.bind();
-
 
 		glm::vec3 ray00 = glm::normalize(cam.GetViewMatrix() * glm::vec4(-aspectRatio, -1, 1.75, 0));
 		glm::vec3 ray10 = glm::normalize(cam.GetViewMatrix() * glm::vec4(aspectRatio, -1, 1.75, 0));
@@ -328,7 +310,7 @@ int main() {
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, indexId);
 		Sphere *ptrToIndexData = (Sphere*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
-		int testItem = 500;
+		int testItem = 0;
 		std::cout << '[' << ptrToIndexData[testItem].center.x
 			<< ',' << ptrToIndexData[testItem].center.y
 			<< ',' << ptrToIndexData[testItem].center.z
