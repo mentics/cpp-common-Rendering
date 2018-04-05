@@ -1,21 +1,28 @@
 #version 430
 layout (local_size_x = 1) in;
 
-struct WorldObject {
-  vec4 pos;
-  vec4 vel;
-  vec4 acc;
-  float radius;
-  float ignore1;
-  float ignore2;
-  float ignore3;
-};
+//struct WorldObject {
+//  vec4 pos;
+//  vec4 vel;
+//  vec4 acc;
+//  float radius;
+//  float ignore1;
+//  float ignore2;
+//  float ignore3;
+//};
 
 struct Sphere {  
   vec4 center; 
   float radius2;
   float center2;
   vec2 ignore;
+};
+
+
+struct WorldObject {
+	vect3 pos;
+	vect3 vel;
+	vect3 acc;
 };
 
 uniform vec3 cameraPos;
