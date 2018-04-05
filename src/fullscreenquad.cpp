@@ -104,8 +104,11 @@ validateProgram(compute_handle);
 return compute_handle;
 }
 
-glm::vec4 toGlm(vect3 v)
-{
+glm::vec4 toGlmPoint(vect3 v) {
+	return glm::vec4(v.x(), v.y(), v.z(), 1);
+}
+
+glm::vec4 toGlmVector(vect3 v) {
 	return glm::vec4(v.x(), v.y(), v.z(), 0);
 }
 
@@ -190,27 +193,23 @@ int main() {
 				//world[ind].pos = toGlm(vect3(0, 0, 0));
 				//world[ind].vel = toGlm(vect3(0, 1, 0));
 				//world[ind].acc = toGlm(vect3(0, 0, 0));
-				//world[ind].radius = 0.1f;
 			}
 		}
 	}
 	
-	AgentPosVelAcc a_data[1000];
-	PosVelAcc dat[1000];
-
+	AgentPosVelAcc a_data[numWorldObjects];
 	w.allAgentsData(a_data);
-
-	for (int i = 0; i < 1000; i++) 
-	{
-		dat[i] = a_data[i].pva;
+	for (int i = 0; i < numWorldObjects; i++) {
+		world[i].pos = toGlmPoint(a_data[i].pva.pos);
+		world[i].vel = toGlmVector(a_data[i].pva.vel);
+		world[i].acc = toGlmVector(a_data[i].pva.acc);
+		world[i].radius = 0.1f;
 	}
-
 	
 	GLuint worldId = 0;
 	glGenBuffers(1, &worldId);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, worldId);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(PosVelAcc) * numWorldObjects, &dat, GL_DYNAMIC_COPY);
-	std::cout << "World Object 211: " << world[211].pos.x << std::endl;
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(WorldObject) * numWorldObjects, &world, GL_DYNAMIC_COPY);
 
 	// Counter Buffer
 	GLuint counterBuffer;
@@ -227,7 +226,7 @@ int main() {
 	GLuint indexId = 0;
 	glGenBuffers(1, &indexId);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, indexId);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Sphere) * 1000, &indexData, GL_DYNAMIC_COPY);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Sphere) * numWorldObjects, &indexData, GL_DYNAMIC_COPY);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 	//// Fragment Shader data ////

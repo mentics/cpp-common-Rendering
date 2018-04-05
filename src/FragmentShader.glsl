@@ -33,8 +33,8 @@ vec3 getRay() {
 
 void main() {
 	vec3 ray = normalize(getRay());
-	//for (int i=0; i<index.objects.length(); i++) {
-	for (int i = 0; i < 1000; i++) {
+	for (int i=0; i<index.objects.length(); i++) {
+	//for (int i = 0; i < 1000; i++) {
 		if (intersectSphere(ray, index.objects[i])) {
 			outColor = vec4(0, 1, 0, 1);
 			break;
