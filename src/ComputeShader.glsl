@@ -32,7 +32,7 @@ layout(std430, binding = 4) buffer Index {
      Sphere objects[1000];
 } index;
 
-void toSphere(WorldObject obj, float gameTime, float gameTime2, Sphere s) {
+void toSphere(WorldObject obj, float gameTime, float gameTime2, inout Sphere s) {
 	vec3 c = obj.pos.xyz + gameTime * obj.vel.xyz + gameTime2 * obj.acc.xyz - cameraPos;
 	s.center = vec4(c, 1);
 	s.radius2 = obj.radius*obj.radius;
