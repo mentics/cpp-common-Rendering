@@ -163,6 +163,7 @@ copy "$(SolutionDir)lib\glew\bin\Release\x64\*.dll" "$(OutDir)"
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\CameraController.h" />
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\imconfig.h" />
     <ClInclude Include="include\imgui.h" />
@@ -173,10 +174,13 @@ copy "$(SolutionDir)lib\glew\bin\Release\x64\*.dll" "$(OutDir)"
     <ClInclude Include="include\stb_textedit.h" />
     <ClInclude Include="include\stb_truetype.h" />
     <ClInclude Include="include\Shader.h" />
+    <ClInclude Include="include\SelectionManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\SelectionManager.cpp" />
+    <ClCompile Include="src\CameraController.cpp" />
     <ClCompile Include="src\Shader.cpp" />
-    <ClCompile Include="src\fullscreenquad.cpp" />
+    <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\imgui.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
@@ -189,7 +193,6 @@ copy "$(SolutionDir)lib\glew\bin\Release\x64\*.dll" "$(OutDir)"
     <ClCompile Include="src\imgui_impl_glfw_gl3.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\common\Common.vcxproj">
