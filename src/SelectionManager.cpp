@@ -2,13 +2,13 @@
 #include "SelectionManager.h"
 
 namespace MenticsGame {
-	SelectionManager::SelectionManager(AgentUniquePtr<TimePoint> s) : selected(std::move(s))
+	SelectionManager::SelectionManager(AgentPtr<TimePoint> s) : selected(s)
 	{
 	}
 
-	void MenticsGame::SelectionManager::setSelected(AgentUniquePtr<TimePoint> s)
+	void MenticsGame::SelectionManager::setSelected(AgentPtr<TimePoint> s)
 	{
-		selected = std::move(s);
+		selected = s;
 	}
 
 

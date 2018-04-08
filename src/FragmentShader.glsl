@@ -20,9 +20,19 @@ layout(std430, binding = 4) buffer Index {
 } index;
 
 
-bool intersectSphere(vec3 dir, Sphere s) {
+bool intersectSphere(vec3 dir, Sphere s, out vec4 pt) {
 	float dc = dot(dir, s.center.xyz);
-	return (dc*dc) >= (s.center2 - s.radius2);
+	float d = (dc*dc) - (s.center2 - s.radius2);
+	if (d >= 0) {
+		d = 2 * sqrt(d);
+		float t1 = -dc + d;
+		float t2 = -dc - d;
+		float t = t1 >= 0 && t1 < t2 ? t1 : t2;
+		pt = vec3(dir*t, 1);
+		return true;
+	} else {
+		return false;
+	}
 }
 
 vec3 getRay() {
@@ -33,18 +43,15 @@ vec3 getRay() {
 
 void main() {
 	vec3 ray = normalize(getRay());
+	outColor = vec4(1, 0.1, 0.1, 1);
+	vec4 pt;
 	for (int i=0; i<index.objects.length(); i++) {
-	//for (int i = 0; i < 1000; i++) {
-		if (intersectSphere(ray, index.objects[i])) {
+		if (intersectSphere(ray, index.objects[i]), pt) {
+			vec4 normal = normalize(pt - index.objects[i].center);
+			float brightness = -dot(ray, normal);
+			//outColor = vec4(0, brightness, 0, 1);
 			outColor = vec4(0, 1, 0, 1);
 			break;
 		}
-		else outColor = vec4(0.1,0.1,0.1,1);
 	}
-	//if (index.objects[0].center.x != 0) {
-	//	outColor = vec4(0, 1, 0, 1);
-	//} else {
-	//	outColor = vec4(1, 0, 0, 1);
-	//}
-	//outColor = vec4(index.objects[int(mod(gl_FragCoord.x, 100))].center.x, 0, 0, 1.0);
 }

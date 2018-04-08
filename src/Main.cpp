@@ -43,13 +43,8 @@ static const GLfloat g_vertex_buffer_data[] = {
 	-1.0f,  -1.0f, 0.0f,
 };
 
-//void window_size_callback(GLFWwindow* window, int width, int height) {
-//	glViewport(0, 0, width, height);
-//} 
 int viewportWidth;
 int viewportHeight;
-
-
 
 GLFWwindow* init() {
 	if (!glfwInit()) {
@@ -90,31 +85,25 @@ GLFWwindow* init() {
 
 GLuint loadComputeShader()
 {
-std::string fText = textFileRead("ComputeShader.glsl");
-
-const char *Text = fText.c_str();
-
-std::cout << "\n compute shader ------------\n" << Text << std::endl;
-GLuint compute_handle = glCreateProgram();
-GLuint compute_shader = glCreateShader(GL_COMPUTE_SHADER);
-glShaderSource(compute_shader, 1, &Text, NULL);
-glCompileShader(compute_shader);
-glAttachShader(compute_handle, compute_shader);
-//glDeleteShader(compute_shader);
-glLinkProgram(compute_handle);
-validateShader(compute_shader, "ComputeShader.glsl");
-validateProgram(compute_handle);
-return compute_handle;
+	std::string fText = textFileRead("ComputeShader.glsl");
+	const char *Text = fText.c_str();
+	std::cout << "\n compute shader ------------\n" << Text << std::endl;
+	GLuint compute_handle = glCreateProgram();
+	GLuint compute_shader = glCreateShader(GL_COMPUTE_SHADER);
+	glShaderSource(compute_shader, 1, &Text, NULL);
+	glCompileShader(compute_shader);
+	glAttachShader(compute_handle, compute_shader);
+	//glDeleteShader(compute_shader);
+	glLinkProgram(compute_handle);
+	validateShader(compute_shader, "ComputeShader.glsl");
+	validateProgram(compute_handle);
+	return compute_handle;
 }
 
+Quip<> q(1, nn::nn_make_unique<BasicTrajectory>(BasicTrajectory(0, 5000, vect3(0, 0, 0), vect3(0, 0, 0), vect3(0, 0, 0))), 0,0,0,0);
 
-Quip<> q(1, nn::nn_make_unique<BasicTrajectory>(BasicTrajectory(0, 5000, vect3(0, 0, 0), vect3(0, 0, 0), vect3(0, 0, 0))), 0,0,0,0); 
-
-
-
-CameraController cam(std::move(nn::nn_make_unique<Quip<>>(q)));
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
+CameraController cam(nn::nn_addr(q));
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 		cam.cam.ProcessKeyboard(FORWARD, 0.1f);
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -128,8 +117,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 double lastX;
 double lastY;
 bool firstMouse = true;
-static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
-{
+static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
 	if (firstMouse)
 	{
 		lastX = xpos;
@@ -156,9 +144,8 @@ struct Sphere {
 
 
 int main() {
-
 	Boss b(5, nn::nn_make_unique<BasicTrajectory>(BasicTrajectory(0, 5000, vect3(0,0,0), vect3(0,0,0), vect3(0,0,0))));     
-	SelectionManager selectionManager(nn::nn_make_unique<Boss>(b));   
+	SelectionManager selectionManager(nn::nn_addr(b));   
 
 	GLFWwindow* window = init();
 
@@ -183,7 +170,7 @@ int main() {
 	}
 
 	std::this_thread::sleep_for(chrono::milliseconds(2000));
-
+	
 	AgentPosVelAcc a_data[numWorldObjects];
 	w.allAgentsData(a_data);
 	for (int i = 0; i < numWorldObjects; i++) {
@@ -303,7 +290,7 @@ int main() {
 			<< ']';
 		glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
-
+		
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 		glVertexAttribPointer(

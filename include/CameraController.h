@@ -4,11 +4,11 @@
 
 
 namespace MenticsGame {
-	glm::vec4 toGlmPoint(vect3 v) {
+	inline glm::vec4 toGlmPoint(vect3 v) {
 		return glm::vec4(v.x(), v.y(), v.z(), 1);
 	}
 
-	glm::vec4 toGlmVector(vect3 v) {
+	inline glm::vec4 toGlmVector(vect3 v) {
 		return glm::vec4(v.x(), v.y(), v.z(), 0);
 	}
 
@@ -22,11 +22,11 @@ namespace MenticsGame {
 		glm::vec3 ray01;
 		glm::vec3 ray11;
 
-		QuipUniquePtr player;
+		QuipPtr player;
 
 
 
-		CameraController(QuipUniquePtr q) : player(std::move(q)) {}
+		CameraController(QuipPtr q) : player(q) {}
 
 		void update(float aspectRatio);
 		~CameraController();

@@ -4,10 +4,10 @@
 namespace MenticsGame {
 	class SelectionManager
 	{
-		AgentUniquePtr<TimePoint> selected;  
+		AgentPtr<TimePoint> selected;  
 	public:
-		SelectionManager(AgentUniquePtr<TimePoint> s);
-		void setSelected(AgentUniquePtr<TimePoint> s);
+		SelectionManager(AgentPtr<TimePoint> s);
+		void setSelected(AgentPtr<TimePoint> s);
 		~SelectionManager();
 	};
 }
