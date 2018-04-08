@@ -99,7 +99,7 @@ GLuint loadComputeShader()
 	validateProgram(compute_handle);
 	return compute_handle;
 }
- 
+
 Quip<> q(1, nn::nn_make_unique<BasicTrajectory>(BasicTrajectory(0, 5000, vect3(0, 0, 0), vect3(0, 0, 0), vect3(0, 0, 0))), 0,0,0,0);
 
 CameraController cam(nn::nn_addr(q));
@@ -173,7 +173,11 @@ int main() {
 	
 	AgentPosVelAcc a_data[numWorldObjects];
 	w.allAgentsData(a_data);
-	for (int i = 0; i < numWorldObjects; i++) {
+	world[0].pos = glm::vec4(0, 0, 0, 1);
+	world[0].vel = glm::vec4(0, 0, 0, 0);
+	world[0].acc = glm::vec4(0, 0, 0, 0);
+	world[0].radius = 0.5f;
+	for (int i = 1; i < numWorldObjects; i++) {
 		world[i].pos = toGlmPoint(a_data[i].pva.pos); 
 		world[i].vel = toGlmVector(a_data[i].pva.vel);
 		world[i].acc = toGlmVector(a_data[i].pva.acc);
@@ -244,6 +248,8 @@ int main() {
 		}
 		index = (index + 1) % windowSize;
 
+		cam.update(aspectRatio);
+
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		ImGui_ImplGlfwGL3_NewFrame();
@@ -289,7 +295,7 @@ int main() {
 			<< ',' << ptrToIndexData[testItem].radius2
 			<< ']';
 		glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-
+		
 		
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);

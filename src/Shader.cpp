@@ -63,7 +63,7 @@ void validateShader(GLuint shader, const char* file = 0) {
 		glGetShaderInfoLog(shader, BUFFER_SIZE, &length, buffer); // Ask OpenGL to give us the log associated with the shader
 
 		cout << "Shader " << shader << " (" << (file ? file : "") << ") compile error: " << buffer << endl; // Output the information
-
+		throw "Shader compile error";
 	}
 
 }
@@ -106,6 +106,7 @@ void validateProgram(GLuint program) {
 
 		cout << "Program " << program << " link error: " << buffer << endl; // Output the information
 
+		throw "Shader compile error";
 	}
 
 }
