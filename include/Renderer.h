@@ -98,6 +98,7 @@ namespace MenticsGame {
 
 		~Renderer();
 	private:
+		ONLY_MOVE(Renderer);
 		Boss b;
 		SelectionManager selectionManager;
 		GLFWwindow* window;
