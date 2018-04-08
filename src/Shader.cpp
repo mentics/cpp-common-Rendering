@@ -122,7 +122,7 @@ Default constructor for the Shader class, at the moment it does nothing
 Shader::Shader() {
 
 
-
+	inited = false;
 }
 
 
@@ -157,7 +157,6 @@ void Shader::init(const char *vsFile, const char *fsFile) {
 
 	if (inited) // If we have already initialized the shader
 		return;
-
 
 	inited = true; // Mark that we have initialized the shader
 
