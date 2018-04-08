@@ -175,12 +175,14 @@ copy "$(SolutionDir)lib\glew\bin\Release\x64\*.dll" "$(OutDir)"
     <ClInclude Include="include\stb_truetype.h" />
     <ClInclude Include="include\Shader.h" />
     <ClInclude Include="include\SelectionManager.h" />
+    <ClInclude Include="include\Renderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\SelectionManager.cpp" />
     <ClCompile Include="src\CameraController.cpp" />
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\imgui.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>

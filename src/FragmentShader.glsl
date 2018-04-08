@@ -28,7 +28,7 @@ bool intersectSphere(vec3 dir, Sphere s, out vec4 pt) {
 		float t1 = -dc + d;
 		float t2 = -dc - d;
 		float t = t1 >= 0 && t1 < t2 ? t1 : t2;
-		pt = vec3(dir*t, 1);
+		pt = vec4(dir*t, 1);
 		return true;
 	} else {
 		return false;
@@ -42,11 +42,11 @@ vec3 getRay() {
 
 
 void main() {
-	vec3 ray = normalize(getRay());
-	outColor = vec4(1, 0.1, 0.1, 1);
+	vec4 ray = normalize(getRay());
+	//outColor = vec4(1, 0.1, 0.1, 1);
 	vec4 pt;
 	for (int i=0; i<index.objects.length(); i++) {
-		if (intersectSphere(ray, index.objects[i]), pt) {
+		if (intersectSphere(ray, index.objects[i], pt)) {
 			vec4 normal = normalize(pt - index.objects[i].center);
 			float brightness = -dot(ray, normal);
 			//outColor = vec4(0, brightness, 0, 1);

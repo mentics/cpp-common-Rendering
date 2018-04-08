@@ -46,7 +46,7 @@ static const GLfloat g_vertex_buffer_data[] = {
 int viewportWidth;
 int viewportHeight;
 
-GLFWwindow* init() {
+GLFWwindow* init() { 
 	if (!glfwInit()) {
 		fprintf(stderr, "Failed to initialize glfw\n");
 		return 0;
@@ -76,11 +76,11 @@ GLFWwindow* init() {
 	}
 
 	//glfwSetWindowSizeCallback(window, window_size_callback);
-	glViewport(0, 0, width, height);
+	glViewport(0, 0, width, height); 
 	viewportWidth = width;
 	viewportHeight = height;
 
-	return window;
+	return window; 
 }
 
 GLuint loadComputeShader()
@@ -99,19 +99,19 @@ GLuint loadComputeShader()
 	validateProgram(compute_handle);
 	return compute_handle;
 }
-
+ 
 Quip<> q(1, nn::nn_make_unique<BasicTrajectory>(BasicTrajectory(0, 5000, vect3(0, 0, 0), vect3(0, 0, 0), vect3(0, 0, 0))), 0,0,0,0);
 
 CameraController cam(nn::nn_addr(q));
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		cam.cam.ProcessKeyboard(FORWARD, 0.1f);
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		cam.cam.ProcessKeyboard(FORWARD, 0.1f); 
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) 
 		cam.cam.ProcessKeyboard(BACKWARD, 0.1f);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 		cam.cam.ProcessKeyboard(LEFT, 0.1f);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		cam.cam.ProcessKeyboard(RIGHT, 0.1f);
+		cam.cam.ProcessKeyboard(RIGHT, 0.1f); 
 }
 
 double lastX;
@@ -131,12 +131,12 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
 	lastX = xpos;
 	lastY = ypos;
 
-	cam.cam.ProcessMouseMovement(xoffset, yoffset);
+	cam.cam.ProcessMouseMovement(xoffset, yoffset); 
 }
 
 struct Sphere {
 	glm::vec4 center;
-	float radius2;
+	float radius2; 
 	float center2;
 	glm::vec2 ignore;
 };
@@ -174,7 +174,7 @@ int main() {
 	AgentPosVelAcc a_data[numWorldObjects];
 	w.allAgentsData(a_data);
 	for (int i = 0; i < numWorldObjects; i++) {
-		world[i].pos = toGlmPoint(a_data[i].pva.pos);
+		world[i].pos = toGlmPoint(a_data[i].pva.pos); 
 		world[i].vel = toGlmVector(a_data[i].pva.vel);
 		world[i].acc = toGlmVector(a_data[i].pva.acc);
 		world[i].radius = 0.1f;
