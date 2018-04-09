@@ -43,7 +43,8 @@ namespace MenticsGame {
 	
 	
 
-	static Quip<> q(1, nn::nn_make_unique<BasicTrajectory>(BasicTrajectory(0, 5000, vect3(0, 0, 0), vect3(0, 0, 0), vect3(0, 0, 0))), 0, 0, 0, 0);
+	static Quip<> q(1, nn::nn_make_unique<BasicTrajectory>(BasicTrajectory(0, 5000, vect3(0, 0, 0), vect3(0, 0, 0), vect3(0, 0, 0))), 0, 0, 0, 0, "player");
+
 	static CameraController cam(nn::nn_addr(q)); 
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)

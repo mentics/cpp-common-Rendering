@@ -21,7 +21,7 @@ MenticsGame::Renderer::Renderer()
 	// CPU to ComputeShader "World" buffer
 
 	for (int i = 0; i < numWorldObjects; i++) {
-		w.createQuip(0, makeTrajRandom(10, 2, 1));
+		w.createQuip(0, makeTrajRandom(10, 2, 1), "bot");
 	}
 
 	std::this_thread::sleep_for(chrono::milliseconds(2000));
@@ -98,6 +98,10 @@ void MenticsGame::Renderer::run()
 			printf("Average frame time millis: %.4f\n", dt / 1e6);
 		}
 		index = (index + 1) % windowSize;
+
+		
+		
+		w.run();
 
 		cam.update(aspectRatio);
 
