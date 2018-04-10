@@ -120,8 +120,6 @@ Default constructor for the Shader class, at the moment it does nothing
 */
 
 Shader::Shader() {
-
-
 	inited = false;
 }
 
