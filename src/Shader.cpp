@@ -167,7 +167,6 @@ void Shader::init(const char *vsFile, const char *fsFile) {
 	const char *vertexText = vsText.c_str(); 
 	const char *fragmentText = fsText.c_str();  
 
-	cout << fragmentText << " || ";
 	if (vertexText == NULL || fragmentText == NULL) { // If either the vertex or fragment shader wouldn't load
 		cout << "Either vertex shader or fragment shader file not found." << endl; // Output the error
 		return;

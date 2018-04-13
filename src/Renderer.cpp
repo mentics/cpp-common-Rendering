@@ -183,7 +183,6 @@ GLuint MenticsGame::Renderer::loadComputeShader()
 {
 	std::string fText = textFileRead("ComputeShader.glsl");
 	const char *Text = fText.c_str();
-	std::cout << "\n compute shader ------------\n" << Text << std::endl;
 	GLuint compute_handle = glCreateProgram();
 	GLuint compute_shader = glCreateShader(GL_COMPUTE_SHADER);
 	glShaderSource(compute_shader, 1, &Text, NULL);

@@ -25,11 +25,11 @@ uniform float dt;
 layout(binding = 1, offset = 0) uniform atomic_uint counter;
 
 layout(std430, binding = 3) buffer World {
-     WorldObject objects[1000];
+     WorldObject objects[];
 } world;
 
 layout(std430, binding = 4) buffer Index {
-     Sphere objects[1000];
+     Sphere objects[];
 } index;
 
 void toSphere(WorldObject obj, float gameTime, float gameTime2, inout Sphere s) {

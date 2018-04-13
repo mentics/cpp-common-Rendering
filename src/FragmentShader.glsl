@@ -16,7 +16,7 @@ uniform vec3 ray01;
 uniform vec3 ray11;
 
 layout(std430, binding = 4) buffer Index {
-     Sphere objects[1000];
+     Sphere objects[];
 } index;
 
 
