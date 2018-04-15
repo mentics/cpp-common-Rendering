@@ -1,6 +1,8 @@
 #include "stdafx.h"
-#include "..\include\Renderer.h"
 #include <iostream>
+#include "RenderUtil.h"
+#include "Renderer.h"
+
 MenticsGame::Renderer::Renderer()
 	: b(5, nn::nn_make_unique<BasicTrajectory>(BasicTrajectory(0, 5000, vect3(0, 0, 0), vect3(0, 0, 0), vect3(0, 0, 0))))
      , selectionManager(nn::nn_addr(b))
@@ -98,10 +100,17 @@ void MenticsGame::Renderer::run()
 			printf("Average frame time millis: %.4f\n", dt / 1e6);
 		}
 		index = (index + 1) % windowSize;
+		float actualTimeSeconds = (float)(nanos - startNanos) / 1000000000.0;
 
-		
-		
-		w.run();
+		RealTime gameTime = w.getGameTime();
+		float gameTimeSeconds = (float)gameTime / 1000000000.0;
+
+		w.consumeOutgoing([&](OutEventPtr<TimePoint> &e) {
+			// TODO: put in enum on OutEvent so we know event type, or do double dispatch, or implement hook in outevent
+			//if (e->name == "player") {
+			//	takeControl(e->quip);
+			//}
+		}, gameTime);
 
 		cam.update(aspectRatio);
 
@@ -111,14 +120,13 @@ void MenticsGame::Renderer::run()
 
 		glUseProgram(compute_handle);
 		glUniform3f(cameraId, cam.cam.Position.x, cam.cam.Position.y, cam.cam.Position.z);
-		float gameTime = (float)(nanos - startNanos) / 1000000000.0;
 
 		ImGui::Begin("test");
-		ImGui::Text("Game Time: %.2f", gameTime);
+		ImGui::Text("Game Time: %.2f", gameTimeSeconds);
 		ImGui::Text("CameraPos %.2f, %.2f, %.2f", cam.cam.Position.x, cam.cam.Position.y, cam.cam.Position.z);
 		ImGui::End();
 
-		glUniform1f(gameTimeId, gameTime);
+		glUniform1f(gameTimeId, gameTimeSeconds);
 		glUniform1f(dtId, dt);
 		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, counterBuffer);
 		glInvalidateBufferData(GL_ATOMIC_COUNTER_BUFFER);

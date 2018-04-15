@@ -2,12 +2,15 @@
 #include "Agent.h"
 
 namespace MenticsGame {
-	class SelectionManager
-	{
-		AgentPtr<TimePoint> selected;  
-	public:
-		SelectionManager(AgentPtr<TimePoint> s);
-		void setSelected(AgentPtr<TimePoint> s);
-		~SelectionManager();
-	};
+
+template<typename TimeType>
+class SelectionManager {
+	AgentP selected;  
+
+public:
+	SelectionManager(AgentP s) : selected(s) {}
+
+	void setSelected(AgentP s);
+};
+
 }

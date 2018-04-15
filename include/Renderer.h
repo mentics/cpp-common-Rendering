@@ -40,12 +40,9 @@ namespace MenticsGame {
 	static int viewportWidth;
 	static int viewportHeight;
 
-	
-	
+	static Quip<RealTime> q(1, nn::nn_make_unique<BasicTrajectory>(BasicTrajectory(0, 5000, vect3(0, 0, 0), vect3(0, 0, 0), vect3(0, 0, 0))), 0, 0, 0, 0, "player");
 
-	static Quip<> q(1, nn::nn_make_unique<BasicTrajectory>(BasicTrajectory(0, 5000, vect3(0, 0, 0), vect3(0, 0, 0), vect3(0, 0, 0))), 0, 0, 0, 0, "player");
-
-	static CameraController cam(nn::nn_addr(q)); 
+	static CameraController<RealTime> cam(nn::nn_addr(q)); 
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 			cam.cam.ProcessKeyboard(FORWARD, 0.1f);
@@ -100,8 +97,8 @@ namespace MenticsGame {
 		~Renderer();
 	private:
 		ONLY_MOVE(Renderer);
-		Boss b;
-		SelectionManager selectionManager;
+		Boss<RealTime> b;
+		SelectionManager<RealTime> selectionManager;
 		GLFWwindow* window;
 		Shader shaders;
 		GLuint compute_handle;

@@ -2,34 +2,23 @@
 #include "Camera.h"
 #include "Quip.h"
 
-
 namespace MenticsGame {
-	inline glm::vec4 toGlmPoint(vect3 v) {
-		return glm::vec4(v.x(), v.y(), v.z(), 1);
-	}
 
-	inline glm::vec4 toGlmVector(vect3 v) {
-		return glm::vec4(v.x(), v.y(), v.z(), 0);
-	}
+template<typename TimeType>
+class CameraController {
+public:
+	Camera cam;
 
-	class CameraController 
-	{
-	public:
-		Camera cam;
+	glm::vec3 ray00;
+	glm::vec3 ray10;
+	glm::vec3 ray01;
+	glm::vec3 ray11;
 
-		glm::vec3 ray00;
-		glm::vec3 ray10;
-		glm::vec3 ray01;
-		glm::vec3 ray11;
+	QuipP player;
 
-		QuipPtr player;
+	CameraController(QuipP q) : player(q) {}
 
-
-
-		CameraController(QuipPtr q) : player(q) {}
-
-		void update(float aspectRatio);
-		~CameraController();
-	};
+	void update(float aspectRatio);
+};
 
 }
