@@ -13,7 +13,7 @@ TEST_CLASS(SomethingTest) {
 
 public:
 	TEST_CLASS_INITIALIZE(BeforeClass) {
-		setupLog();
+		//setupLog();
 	}
 
 	TEST_METHOD(FirstTest) {

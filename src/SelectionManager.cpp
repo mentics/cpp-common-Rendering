@@ -4,7 +4,7 @@
 namespace MenticsGame {
 
 template<typename TimeType>
-void SelectionManager::setSelected(AgentP s) {
+void SelectionManager<TimeType>::setSelected(AgentP s) {
 	selected = s;
 }
 

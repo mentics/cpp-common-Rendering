@@ -21,4 +21,6 @@ public:
 	void update(float aspectRatio);
 };
 
+template CameraController<uint64_t>;
+
 }

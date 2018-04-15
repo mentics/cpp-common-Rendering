@@ -4,9 +4,9 @@
 #include "Renderer.h"
 
 MenticsGame::Renderer::Renderer()
-	: b(5, nn::nn_make_unique<BasicTrajectory>(BasicTrajectory(0, 5000, vect3(0, 0, 0), vect3(0, 0, 0), vect3(0, 0, 0))))
-     , selectionManager(nn::nn_addr(b))
-	 , w(1)
+	: b(5,
+	  nn::nn_make_unique<BasicTrajectory>(BasicTrajectory(0, 5000, vect3(0, 0, 0), vect3(0, 0, 0), vect3(0, 0, 0)))),
+	  selectionManager(nn::nn_addr(b)), w()
 {
 	window = init();
 	
