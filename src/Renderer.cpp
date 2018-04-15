@@ -91,6 +91,7 @@ MenticsGame::Renderer::Renderer()
 
 void MenticsGame::Renderer::run()
 {
+	w.setTimeScale(1.0);
 	do {
 		uint64_t nanos = currentTimeNanos();
 		frameTimes[index] = nanos;
