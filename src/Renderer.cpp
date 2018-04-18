@@ -21,13 +21,13 @@ MenticsGame::Renderer::Renderer()
 	dtId = glGetUniformLocation(compute_handle, "dt");
 
 	// CPU to ComputeShader "World" buffer
-
+	w.setTimeScale(0.1);
 	for (int i = 0; i < numWorldObjects; i++) {
 		w.createQuip(0, makeTrajRandom(10, 2, 1), "bot");
 	}
 
 	std::this_thread::sleep_for(chrono::milliseconds(2000));
-
+	
 	w.allAgentsData(a_data);
 	world[0].pos = glm::vec4(0, 0, 0, 1);
 	world[0].vel = glm::vec4(0, 0, 0, 0);
