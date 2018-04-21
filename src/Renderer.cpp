@@ -4,7 +4,7 @@
 #include "Renderer.h"
 
 MenticsGame::Renderer::Renderer()
-	: b(5,
+	: b(5, 0,
 	  nn::nn_make_unique<BasicTrajectory>(BasicTrajectory(0, 5000, vect3(0, 0, 0), vect3(0, 0, 0), vect3(0, 0, 0)))),
 	  selectionManager(nn::nn_addr(b)), w()
 {
@@ -106,7 +106,7 @@ void MenticsGame::Renderer::run()
 		RealTime gameTime = w.getGameTime();
 		float gameTimeSeconds = (float)gameTime / 1000000000.0;
 
-		w.consumeOutgoing([&](OutEventPtr<TimePoint> &e) {
+		w.consumeOutgoing([](OutEventPtr<TimePoint>& e) {
 			// TODO: put in enum on OutEvent so we know event type, or do double dispatch, or implement hook in outevent
 			//if (e->name == "player") {
 			//	takeControl(e->quip);

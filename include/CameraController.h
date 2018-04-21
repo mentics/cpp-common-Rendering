@@ -1,5 +1,6 @@
 #pragma once
 #include "Camera.h"
+#include "WorldModel.h"
 #include "Quip.h"
 
 namespace MenticsGame {
@@ -14,9 +15,9 @@ public:
 	glm::vec3 ray01;
 	glm::vec3 ray11;
 
-	QuipP player;
+	QuipWP player;
 
-	CameraController(QuipP q) : player(q) {}
+	CameraController(QuipWP q) : player(q) {}
 
 	void update(float aspectRatio);
 };

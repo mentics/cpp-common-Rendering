@@ -40,7 +40,7 @@ namespace MenticsGame {
 	static int viewportWidth;
 	static int viewportHeight;
 
-	static Quip<RealTime> q(1, nn::nn_make_unique<BasicTrajectory>(BasicTrajectory(0, 5000, vect3(0, 0, 0), vect3(0, 0, 0), vect3(0, 0, 0))), 0, 0, 0, 0, "player");
+	static Quip<RealTime,WorldModel<RealTime>> q(1, 0, nn::nn_make_unique<BasicTrajectory>(BasicTrajectory(0, 5000, vect3(0, 0, 0), vect3(0, 0, 0), vect3(0, 0, 0))), 0, 0, 0, 0, "player");
 
 	static CameraController<RealTime> cam(nn::nn_addr(q)); 
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -97,7 +97,7 @@ namespace MenticsGame {
 		~Renderer();
 	private:
 		ONLY_MOVE(Renderer);
-		Boss<RealTime> b;
+		Boss<RealTime,WorldModel<RealTime>> b;
 		SelectionManager<RealTime> selectionManager;
 		GLFWwindow* window;
 		Shader shaders;

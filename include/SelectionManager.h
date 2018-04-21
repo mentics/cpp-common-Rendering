@@ -1,16 +1,16 @@
 #pragma once
-#include "Agent.h"
+#include "WorldModel.h"
 
 namespace MenticsGame {
 
 template<typename TimeType>
 class SelectionManager {
-	AgentP selected;  
+	AgentWP selected;  
 
 public:
-	SelectionManager(AgentP s) : selected(s) {}
+	SelectionManager(AgentWP s) : selected(s) {}
 
-	void setSelected(AgentP s);
+	void setSelected(AgentWP s);
 };
 
 }
