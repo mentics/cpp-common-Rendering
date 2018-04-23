@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx-rendering.h"
 #include "shader.h"
 #include <string>
 #include <fstream>
@@ -9,62 +9,45 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
-
-
 using namespace std; // Include the standard namespace
 
-
-
-					 /**
-
-					 textFileRead loads in a standard text file from a given filename and
-
-					 then returns it as a string.
-
-					 */
-
+/**
+textFileRead loads in a standard text file from a given filename and
+then returns it as a string.
+*/
 string textFileRead(const char *fileName) {
-
-	std::ifstream file(fileName);
-	std::string content((std::istreambuf_iterator<char>(file)),
-		(std::istreambuf_iterator<char>()));
-	return content; // Return our string
-
+    std::ifstream file(fileName);
+    std::string content((std::istreambuf_iterator<char>(file)),
+        (std::istreambuf_iterator<char>()));
+    return content; // Return our string
 }
 
-
-
 /**
-
 Given a shader and the filename associated with it, validateShader will
-
 then get information from OpenGl on whether or not the shader was compiled successfully
-
 and if it wasn't, it will output the file with the problem, as well as the problem.
-
 */
-
 void validateShader(GLuint shader, const char* file = 0) {
 
-	const unsigned int BUFFER_SIZE = 512;
+    const unsigned int BUFFER_SIZE = 512;
 
-	char buffer[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE];
 
-	memset(buffer, 0, BUFFER_SIZE);
+    memset(buffer, 0, BUFFER_SIZE);
 
-	GLsizei length = 0;
+    GLsizei length = 0;
 
 
 
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &length);
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &length);
 
-	if (GL_FALSE == length) { // If we didn't compile 
+    if (GL_FALSE == length) { // If we didn't compile 
 
-		glGetShaderInfoLog(shader, BUFFER_SIZE, &length, buffer); // Ask OpenGL to give us the log associated with the shader
+        glGetShaderInfoLog(shader, BUFFER_SIZE, &length, buffer); // Ask OpenGL to give us the log associated with the shader
 
-		cout << "Shader " << shader << " (" << (file ? file : "") << ") compile error: " << buffer << endl; // Output the information
-		throw "Shader compile error";
-	}
+        cout << "Shader " << shader << " (" << (file ? file : "") << ") compile error: " << buffer << endl; // Output the information
+        throw "Shader compile error";
+    }
 
 }
 
@@ -82,32 +65,32 @@ then output any issues that have occurred.
 
 void validateProgram(GLuint program) {
 
-	const unsigned int BUFFER_SIZE = 512;
+    const unsigned int BUFFER_SIZE = 512;
 
-	char buffer[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE];
 
-	memset(buffer, 0, BUFFER_SIZE);
+    memset(buffer, 0, BUFFER_SIZE);
 
-	GLsizei length = 0;
+    GLsizei length = 0;
 
 
 
-	glValidateProgram(program); // Get OpenGL to try validating the program
+    glValidateProgram(program); // Get OpenGL to try validating the program
 
-	GLint status;
+    GLint status;
 
-	glGetProgramiv(program, GL_VALIDATE_STATUS, &status); // Find out if the shader program validated correctly
+    glGetProgramiv(program, GL_VALIDATE_STATUS, &status); // Find out if the shader program validated correctly
 
-	if (status == GL_FALSE) { // If there was a problem validating
+    if (status == GL_FALSE) { // If there was a problem validating
 
-		cout << "Error validating shader " << program << endl; // Output which program had the error
+        cout << "Error validating shader " << program << endl; // Output which program had the error
 
-		glGetProgramInfoLog(program, BUFFER_SIZE, &length, buffer); // Ask OpenGL to give us the log associated with the program
+        glGetProgramInfoLog(program, BUFFER_SIZE, &length, buffer); // Ask OpenGL to give us the log associated with the program
 
-		cout << "Program " << program << " link error: " << buffer << endl; // Output the information
+        cout << "Program " << program << " link error: " << buffer << endl; // Output the information
 
-		throw "Shader compile error";
-	}
+        throw "Shader compile error";
+    }
 
 }
 
@@ -120,7 +103,7 @@ Default constructor for the Shader class, at the moment it does nothing
 */
 
 Shader::Shader() {
-	inited = false;
+    inited = false;
 }
 
 
@@ -135,11 +118,11 @@ vertex and fragment shader file.
 
 Shader::Shader(const char *vsFile, const char *fsFile) {
 
-	inited = false; // Declare we have not initialized the shader yet
+    inited = false; // Declare we have not initialized the shader yet
 
 
 
-	init(vsFile, fsFile); // Initialize the shader
+    init(vsFile, fsFile); // Initialize the shader
 
 }
 
@@ -153,44 +136,44 @@ shader program from these. It will also check for any shader compilation issues 
 
 void Shader::init(const char *vsFile, const char *fsFile) {
 
-	if (inited) // If we have already initialized the shader
-		return;
+    if (inited) // If we have already initialized the shader
+        return;
 
-	inited = true; // Mark that we have initialized the shader
+    inited = true; // Mark that we have initialized the shader
 
-	shader_vp = glCreateShader(GL_VERTEX_SHADER); // Create a vertex shader
-	shader_fp = glCreateShader(GL_FRAGMENT_SHADER); // Create a fragment shader
+    shader_vp = glCreateShader(GL_VERTEX_SHADER); // Create a vertex shader
+    shader_fp = glCreateShader(GL_FRAGMENT_SHADER); // Create a fragment shader
 
-	string vsText = textFileRead(vsFile); // Read in the vertex shader
-	string fsText = textFileRead(fsFile); // Read in the fragment shader
+    string vsText = textFileRead(vsFile); // Read in the vertex shader
+    string fsText = textFileRead(fsFile); // Read in the fragment shader
 
-	const char *vertexText = vsText.c_str(); 
-	const char *fragmentText = fsText.c_str();  
+    const char *vertexText = vsText.c_str();
+    const char *fragmentText = fsText.c_str();
 
-	if (vertexText == NULL || fragmentText == NULL) { // If either the vertex or fragment shader wouldn't load
-		cout << "Either vertex shader or fragment shader file not found." << endl; // Output the error
-		return;
-	}
+    if (vertexText == NULL || fragmentText == NULL) { // If either the vertex or fragment shader wouldn't load
+        cout << "Either vertex shader or fragment shader file not found." << endl; // Output the error
+        return;
+    }
 
 
-	glShaderSource(shader_vp, 1, &vertexText, 0); // Set the source for the vertex shader to the loaded text
-	glCompileShader(shader_vp); // Compile the vertex shader
+    glShaderSource(shader_vp, 1, &vertexText, 0); // Set the source for the vertex shader to the loaded text
+    glCompileShader(shader_vp); // Compile the vertex shader
 
-	validateShader(shader_vp, vsFile); // Validate the vertex shader
+    validateShader(shader_vp, vsFile); // Validate the vertex shader
 
-	glShaderSource(shader_fp, 1, &fragmentText, 0); // Set the source for the fragment shader to the loaded text
-	glCompileShader(shader_fp); // Compile the fragment shader
-	validateShader(shader_fp, fsFile); // Validate the fragment shader
+    glShaderSource(shader_fp, 1, &fragmentText, 0); // Set the source for the fragment shader to the loaded text
+    glCompileShader(shader_fp); // Compile the fragment shader
+    validateShader(shader_fp, fsFile); // Validate the fragment shader
 
-	shader_id = glCreateProgram(); // Create a GLSL program
-	glAttachShader(shader_id, shader_vp); // Attach a vertex shader to the program
-	glAttachShader(shader_id, shader_fp); // Attach the fragment shader to the program
+    shader_id = glCreateProgram(); // Create a GLSL program
+    glAttachShader(shader_id, shader_vp); // Attach a vertex shader to the program
+    glAttachShader(shader_id, shader_fp); // Attach the fragment shader to the program
 
-	glBindAttribLocation(shader_id, 0, "in_Position"); // Bind a constant attribute location for positions of vertices
-	glBindAttribLocation(shader_id, 1, "in_Color"); // Bind another constant attribute location, this time for color
+    glBindAttribLocation(shader_id, 0, "in_Position"); // Bind a constant attribute location for positions of vertices
+    glBindAttribLocation(shader_id, 1, "in_Color"); // Bind another constant attribute location, this time for color
 
-	glLinkProgram(shader_id); // Link the vertex and fragment shaders in the program
-	validateProgram(shader_id); // Validate the shader program
+    glLinkProgram(shader_id); // Link the vertex and fragment shaders in the program
+    validateProgram(shader_id); // Validate the shader program
 
 }
 
@@ -206,17 +189,17 @@ and finally deleting the GLSL program.
 
 Shader::~Shader() {
 
-	glDetachShader(shader_id, shader_fp); // Detach the fragment shader
+    glDetachShader(shader_id, shader_fp); // Detach the fragment shader
 
-	glDetachShader(shader_id, shader_vp); // Detach the vertex shader
+    glDetachShader(shader_id, shader_vp); // Detach the vertex shader
 
 
 
-	glDeleteShader(shader_fp); // Delete the fragment shader
+    glDeleteShader(shader_fp); // Delete the fragment shader
 
-	glDeleteShader(shader_vp); // Delete the vertex shader
+    glDeleteShader(shader_vp); // Delete the vertex shader
 
-	glDeleteProgram(shader_id); // Delete the shader program
+    glDeleteProgram(shader_id); // Delete the shader program
 
 }
 
@@ -230,7 +213,7 @@ id returns the integer value associated with the shader program
 
 unsigned int Shader::id() {
 
-	return shader_id; // Return the shaders identifier
+    return shader_id; // Return the shaders identifier
 
 }
 
@@ -244,7 +227,7 @@ bind attaches the shader program for use by OpenGL
 
 void Shader::bind() {
 
-	glUseProgram(shader_id);
+    glUseProgram(shader_id);
 
 }
 
@@ -258,6 +241,6 @@ unbind deattaches the shader program from OpenGL
 
 void Shader::unbind() {
 
-	glUseProgram(0);
+    glUseProgram(0);
 
 }

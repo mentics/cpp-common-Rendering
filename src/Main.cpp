@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+﻿#include "stdafx-rendering.h"
 #pragma comment(linker, "/SUBSYSTEM:CONSOLE /ENTRY:mainCRTStartup")
 #pragma comment(lib,"opengl32.lib")
 #pragma comment(lib,"glfw3.lib")
@@ -11,10 +11,7 @@
 
 using namespace MenticsGame;
 
-
 int main() {
-
-	Renderer r;
-	r.run();
-	
+    Renderer r;
+    r.run();
 }

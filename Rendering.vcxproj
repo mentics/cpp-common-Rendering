@@ -90,12 +90,11 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Create</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>%(ProjectDir)include;C:\app\dev\cpp\boost_1_64_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)math\include;$(SolutionDir)physics\include;$(SolutionDir)simulator\include;$(SolutionDir)worldsim\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -103,9 +102,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-    </ClCompile>
+    <ClCompile />
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -123,17 +120,19 @@ copy "$(SolutionDir)lib\glew\bin\Release\x64\*.dll" "$(OutDir)"
     <PreBuildEvent>
       <Command>copy "$(ProjectDir)src\*.glsl" "$(OutDir)"</Command>
     </PreBuildEvent>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)math\include;$(SolutionDir)physics\include;$(SolutionDir)simulator\include;$(SolutionDir)worldsim\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>Create</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>%(ProjectDir)include;C:\app\dev\cpp\boost_1_64_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)math\include;$(SolutionDir)physics\include;$(SolutionDir)simulator\include;$(SolutionDir)worldsim\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -145,13 +144,12 @@ copy "$(SolutionDir)lib\glew\bin\Release\x64\*.dll" "$(OutDir)"
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib\imgui;$(SolutionDir)\lib\gl3w\include;$(SolutionDir)lib\glew\include;$(SolutionDir)lib\glfw\include;$(SolutionDir)lib\gsl\include;$(SolutionDir)lib\cereal\include;$(SolutionDir)lib\eigen;$(VCInstallDir)UnitTest\include;$(SolutionDir)common\include;$(SolutionDir)WorldSim\include;$(SolutionDir)math\include;$(SolutionDir)physics\include;$(SolutionDir)simulator\include;$(SolutionDir)network\server\include;$(SolutionDir)network\client\include;$(SolutionDir)multiplayer\include;$(SolutionDir)lib\readerwriterqueue;$(SolutionDir)lib\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)math\include;$(SolutionDir)physics\include;$(SolutionDir)simulator\include;$(SolutionDir)worldsim\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -177,6 +175,7 @@ copy "$(SolutionDir)lib\glew\bin\Release\x64\*.dll" "$(OutDir)"
     <ClInclude Include="include\Shader.h" />
     <ClInclude Include="include\SelectionManager.h" />
     <ClInclude Include="include\Renderer.h" />
+    <ClInclude Include="include\stdafx-rendering.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\SelectionManager.cpp" />
@@ -196,6 +195,7 @@ copy "$(SolutionDir)lib\glew\bin\Release\x64\*.dll" "$(OutDir)"
     <ClCompile Include="src\imgui_impl_glfw_gl3.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\stdafx-rendering.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\common\Common.vcxproj">
