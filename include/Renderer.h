@@ -8,7 +8,7 @@
 #include <string>
 #include <fstream>
 #include "glm\glm.hpp" 
-#include "MenticsCommon.h" 
+#include "MenticsCommon.h"  
 #include "Shader.h"
 #include "glm\gtx\transform.hpp"
 #include "World.h" 
@@ -40,7 +40,7 @@ static const GLfloat g_vertex_buffer_data[] = {
 static int viewportWidth;
 static int viewportHeight;
 
-static Quip<RealTime, WorldModel<RealTime>> q(1, 0, nn::nn_make_unique<BasicTrajectory>(BasicTrajectory(0, 5000, vect3(0, 0, 0), vect3(0, 0, 0), vect3(0, 0, 0))), 0, 0, 0, 0, "player");
+static Quip<RealTime, WorldModel<RealTime>> q(1, 0, nn::nn_make_unique<BasicTrajectory<RealTime>>(BasicTrajectory<RealTime>(0, 5000, vect3(0, 0, 0), vect3(0, 0, 0), vect3(0, 0, 0))), 0, 0, 0, 0, "player");
 
 static CameraController<RealTime> cam(nn::nn_addr(q));
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {

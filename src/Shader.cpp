@@ -29,7 +29,7 @@ and if it wasn't, it will output the file with the problem, as well as the probl
 */
 void validateShader(GLuint shader, const char* file = 0) {
 
-    const unsigned int BUFFER_SIZE = 512;
+    const unsigned int BUFFER_SIZE = 512; 
 
     char buffer[BUFFER_SIZE];
 

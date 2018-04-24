@@ -149,7 +149,7 @@ copy "$(SolutionDir)lib\glew\bin\Release\x64\*.dll" "$(OutDir)"
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)math\include;$(SolutionDir)physics\include;$(SolutionDir)simulator\include;$(SolutionDir)worldsim\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Αντονιο Τρπεσκι\Desktop\QuipTrials\physics\src;$(SolutionDir)math\include;$(SolutionDir)physics\include;$(SolutionDir)simulator\include;$(SolutionDir)worldsim\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

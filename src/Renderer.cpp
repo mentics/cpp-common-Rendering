@@ -7,7 +7,7 @@ namespace MenticsGame {
 
 Renderer::Renderer()
     : b(5, 0,
-        nn::nn_make_unique<BasicTrajectory>(BasicTrajectory(0, 5000, vect3(0, 0, 0), vect3(0, 0, 0), vect3(0, 0, 0)))),
+        nn::nn_make_unique<BasicTrajectory<RealTime>>(BasicTrajectory<RealTime>(0, 5000, vect3(0, 0, 0), vect3(0, 0, 0), vect3(0, 0, 0)))),
     selectionManager(nn::nn_addr(b)), w() {
     window = init();
 
@@ -22,7 +22,7 @@ Renderer::Renderer()
     dtId = glGetUniformLocation(compute_handle, "dt");
 
     // CPU to ComputeShader "World" buffer
-    w.setTimeScale(0.1);
+    w.setTimeScale(1.0);
     for (int i = 0; i < numWorldObjects; i++) {
         w.createQuip(0, makeTrajRandom(10, 2, 1), "bot");
     }
