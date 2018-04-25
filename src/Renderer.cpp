@@ -13,7 +13,7 @@ Renderer::Renderer()
 
     shaders.init("VertexShader.glsl", "FragmentShader.glsl");
     compute_handle = loadComputeShader();
-    aspectRatio = viewportWidth / (double)viewportHeight;
+    aspectRatio = viewportWidth / (float)viewportHeight;
 
     //// Compute Shader data ////
 
@@ -24,7 +24,7 @@ Renderer::Renderer()
     // CPU to ComputeShader "World" buffer
     w.setTimeScale(1.0);
     for (int i = 0; i < numWorldObjects; i++) {
-        w.createQuip(0, makeTrajRandom(10, 2, 1), "bot");
+        w.createQuip(0, makeTrajRandom<RealTime>(10, 2, 1), "bot");
     }
 
     std::this_thread::sleep_for(chrono::milliseconds(2000));
@@ -96,18 +96,18 @@ void Renderer::run() {
         uint64_t nanos = currentTimeNanos();
         frameTimes[index] = nanos;
         uint8_t prevIndex = index - 1 < 0 ? windowSize - 1 : index - 1;
-        double dt = (frameTimes[index] - frameTimes[prevIndex]) / (double)windowSize;
+        float dt = (frameTimes[index] - frameTimes[prevIndex]) / (float)windowSize;
         if (index == 0) {
             printf("Average frame time millis: %.4f\n", dt / 1e6);
         }
         index = (index + 1) % windowSize;
-        double actualTimeSeconds = (double)(nanos - startNanos) / 1000000000.0;
+        float actualTimeSeconds = (float)(nanos - startNanos) / 1000000000.0;
 
         RealTime gameTime = w.getGameTime();
-        double gameTimeSeconds = (double)gameTime / 1000000000.0;
+        float gameTimeSeconds = (float)gameTime / 1000000000.0;
 
         w.consumeOutgoing([](OutEventPtr<TimePoint>& e) {
-            // TODO: put in enum on OutEvent so we know event type, or do double dispatch, or implement hook in outevent
+            // TODO: put in enum on OutEvent so we know event type, or do float dispatch, or implement hook in outevent
             //if (e->name == "player") {
             //  takeControl(e->quip);
             //}
@@ -127,8 +127,8 @@ void Renderer::run() {
         ImGui::Text("CameraPos %.2f, %.2f, %.2f", cam.cam.Position.x, cam.cam.Position.y, cam.cam.Position.z);
         ImGui::End();
 
-        glUniform1f(gameTimeId, gameTimeSeconds);
-        glUniform1f(dtId, dt);
+        glUniform1f(gameTimeId, (GLfloat)gameTimeSeconds);
+        glUniform1f(dtId, (GLfloat)dt);
         glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, counterBuffer);
         glInvalidateBufferData(GL_ATOMIC_COUNTER_BUFFER);
         glClearBufferData(GL_ATOMIC_COUNTER_BARRIER_BIT, GL_UNSIGNED_INT, GL_UNSIGNED_INT, 0, 0);

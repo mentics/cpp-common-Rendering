@@ -54,8 +54,8 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         cam.cam.ProcessKeyboard(RIGHT, 0.1f);
 }
 
-static double lastX;
-static double lastY;
+static float lastX;
+static float lastY;
 static bool firstMouse = true;
 
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
@@ -65,8 +65,8 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
         firstMouse = false;
     }
 
-    double xoffset = xpos - lastX;
-    double yoffset = lastY - ypos;
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos;
 
     lastX = xpos;
     lastY = ypos;
@@ -100,7 +100,7 @@ private:
     GLFWwindow* window;
     Shader shaders;
     GLuint compute_handle;
-    double aspectRatio;
+    float aspectRatio;
     GLint cameraId;
     GLint gameTimeId;
     GLint dtId;

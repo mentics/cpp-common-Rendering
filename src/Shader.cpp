@@ -234,13 +234,8 @@ void Shader::bind() {
 
 
 /**
-
 unbind deattaches the shader program from OpenGL
-
 */
-
 void Shader::unbind() {
-
     glUseProgram(0);
-
 }
