@@ -2,6 +2,10 @@
 #include <iostream>
 #include "RenderUtil.h"
 #include "Renderer.h"
+#include "Events.h"
+#include "OutEvents.h"
+#include "Actions.h"
+
 
 namespace MenticsGame {
 
@@ -106,11 +110,17 @@ void Renderer::run() {
         RealTime gameTime = w.getGameTime();
         float gameTimeSeconds = (float)gameTime / 1000000000.0;
 
-        w.consumeOutgoing([](OutEventPtr<TimePoint>& e) {
+        //QuipPtr<TimePoint, WorldModel<TimePoint>> p;
+        w.consumeOutgoing([gameTime,this](OutEventPtr<TimePoint>& e) {   
             // TODO: put in enum on OutEvent so we know event type, or do float dispatch, or implement hook in outevent
-            //if (e->name == "player") {
-            //  takeControl(e->quip);
-            //}
+            if (e->type == EventQuipCreated ) {
+                QuipCreated<TimePoint>* tmp = (QuipCreated<TimePoint>*) &e;  
+                if(tmp->quip->name == "player")
+                {
+                    ActionArrive<RealTime> act(0, nn::nn_addr(*tmp->quip), 1);  
+                    tmp->quip->setAction(gameTime, nn::nn_make_unique<ActionArrive<RealTime>>(act), nn::nn_addr(this->w.sched));  
+                }
+            }
         }, gameTime);
 
         cam.update(aspectRatio);
